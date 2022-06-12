@@ -1,0 +1,8 @@
+query($branch: String!) {
+    device(branch: $branch) {
+        id
+        name {
+            value
+        }
+    }
+}
