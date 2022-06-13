@@ -1,6 +1,9 @@
 query($branch: String!, $device_name: String!) {
     device(branch: $branch, name__value: $device_name) {
         id
+        name {
+            value
+        }
         interfaces {
             id
             name {
