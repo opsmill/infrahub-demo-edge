@@ -1,0 +1,37 @@
+query($branch: String!, $device_name: String!) {
+    device(branch: $branch, name__value: $device_name) {
+        id
+        interfaces {
+            id
+            name {
+                value
+            }
+            description {
+                value
+            }
+            enabled {
+                value
+            }
+            role {
+                slug {
+                    value
+                }
+            }
+            ip_addresses {
+                address {
+                    value
+                }
+            }
+        }
+        management_interface: interfaces(role__slug: "management") {
+            name {
+                value
+            }
+            ip_addresses {
+                address {
+                    value
+                }
+            }
+        }
+    }
+}

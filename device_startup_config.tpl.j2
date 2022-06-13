@@ -1,0 +1,48 @@
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$q4ez.aZgB/G/eeWW$ukvRobb5RtYmUlCcY0atxhwPmA6FPoRjR3AxYFJqNFoCRgJjrohKGrBsbY12n1uRZeCer1L8oejx5aPlrf.op0
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname {{ data.device[0].name.value }}
+!
+spanning-tree mode mstp
+!
+management api http-commands
+   no shutdown
+!
+management api gnmi
+   transport grpc default
+!
+management api netconf
+   transport ssh default
+!
+{% for intf in data.device[0]["interfaces"] %}
+{%   if intf.role.slug.value != "management" %}
+interface {{intf["name"]["value"]}}
+{%   if intf["description"]["value"] %}
+   description {{ intf["description"]["value"] }}
+{%   else %}
+   description role: {{ intf.role.slug.value }}
+{%   endif %}
+{%   if not intf["enabled"]["value"] %}
+   shutdown
+{%   endif %}
+{%   for ip in intf["ip_addresses"] %}
+   ip address {{ ip["address"]["value"] }}
+{%   endfor %}
+!
+{%   endif %}
+{% endfor %}
+{% for intf in data.device[0]["management_interface"] %}
+interface {{intf["name"]["value"]}}
+{%   for ip in intf["ip_addresses"] %}
+   ip address {{ ip["address"]["value"] }}
+{%   endfor %}
+!
+{% endfor %}
+no ip routing
+!
+end

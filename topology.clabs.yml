@@ -1,6 +1,10 @@
 # topology documentation: http://containerlab.srlinux.dev/lab-examples/min-clos/
 name: edge_triangle
 
+# mgmt:
+#   network: infrahub_mgmt              # management network name
+#   ipv4_subnet: 172.100.100.0/24       # ipv4 range
+
 topology:
   kinds:
     srl:
@@ -11,12 +15,30 @@ topology:
       kind: ceos
       image: ceos:4.27.3F
   nodes:
-{% for device in data.device %}
-    {{ device.name.value }}:
+    atl1-edge2:
       kind: ceos
       type: ixrd2
-      mgmt_ipv4: {{ device.interfaces[0].ip_addresses[0].address.value | split("-")[0] }}
-{% endfor %}
+      mgmt_ipv4: 172.20.20.20
+    ord1-edge1:
+      kind: ceos
+      type: ixrd2
+      mgmt_ipv4: 172.20.20.21
+    ord1-edge2:
+      kind: ceos
+      type: ixrd2
+      mgmt_ipv4: 172.20.20.22
+    jfk1-edge1:
+      kind: ceos
+      type: ixrd2
+      mgmt_ipv4: 172.20.20.23
+    jfk1-edge2:
+      kind: ceos
+      type: ixrd2
+      mgmt_ipv4: 172.20.20.24
+    atl1-edge1:
+      kind: ceos
+      type: ixrd2
+      mgmt_ipv4: 172.20.20.25
   links:
     - endpoints: ["atl1-edge1:eth1", "atl1-edge2:eth1"]
     - endpoints: ["atl1-edge1:eth2", "atl1-edge2:eth2"]

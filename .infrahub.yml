@@ -1,10 +1,10 @@
 ---
 rfiles:
-#   switch_config:
-#     description: "Main template to generate configuration for network devices"
-#     query: "switch_info"
-#     template_repository: "self"
-#     template_path: "switch_config.tpl.j2"
+  device_startup:
+    description: "Template to generate startup configuration for network devices"
+    query: "device_startup_info"
+    template_repository: "self"
+    template_path: "device_startup_config.tpl.j2"
 
   clab_topology:
     query: "topology_info"
