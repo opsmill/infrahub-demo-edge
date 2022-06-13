@@ -1,6 +1,10 @@
 # topology documentation: http://containerlab.srlinux.dev/lab-examples/min-clos/
 name: edge_triangle
 
+mgmt:
+  network: infrahub_mgmt              # management network name
+  ipv4_subnet: 172.100.100.0/24       # ipv4 range
+
 topology:
   kinds:
     srl:
@@ -16,7 +20,6 @@ topology:
       kind: ceos
       type: ixrd2
       mgmt_ipv4: {{ device.interfaces[0].ip_addresses[0].address.value }}
-      # startup-config: /root/mylab/node1.cfg
 {% endfor %}
   links:
     - endpoints: ["atl1-edge1:eth1", "atl1-edge2:eth1"]
