@@ -1,8 +1,14 @@
 query($branch: String!) {
     device(branch: $branch) {
+    name {
+        value
+    }
+    interfaces(role__slug: "management") {
         id
-        name {
-            value
+        ip_addresses {
+            address {
+                value
+            }
         }
     }
 }

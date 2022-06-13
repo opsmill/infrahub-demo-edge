@@ -15,6 +15,8 @@ topology:
     {{ device.name.value }}:
       kind: ceos
       type: ixrd2
+      mgmt_ipv4: {{ device.interfaces[0].ip_addresses[0].address.value }}
+      # startup-config: /root/mylab/node1.cfg
 {% endfor %}
   links:
     - endpoints: ["atl1-edge1:eth1", "atl1-edge2:eth1"]
