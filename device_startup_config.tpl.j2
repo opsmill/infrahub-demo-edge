@@ -44,6 +44,8 @@ interface {{intf["name"]["value"]}}
 {%   endfor %}
 !
 {% endfor %}
-no ip routing
+ip routing
+!
+ip route 0.0.0.0/0 172.20.20.1
 !
 end
