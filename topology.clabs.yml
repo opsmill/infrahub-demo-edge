@@ -1,10 +1,6 @@
 # topology documentation: http://containerlab.srlinux.dev/lab-examples/min-clos/
 name: edge_triangle
 
-# mgmt:
-#   network: infrahub_mgmt              # management network name
-#   ipv4_subnet: 172.100.100.0/24       # ipv4 range
-
 topology:
   kinds:
     srl:
@@ -15,30 +11,36 @@ topology:
       kind: ceos
       image: ceos:4.27.3F
   nodes:
-    atl1-edge2:
-      kind: ceos
-      type: ixrd2
-      mgmt_ipv4: 172.20.20.20
     ord1-edge1:
       kind: ceos
       type: ixrd2
-      mgmt_ipv4: 172.20.20.21
+      mgmt_ipv4: 172.20.20.19
+      startup-config: configs/startup/ord1-edge1.cfg
     ord1-edge2:
       kind: ceos
       type: ixrd2
-      mgmt_ipv4: 172.20.20.22
+      mgmt_ipv4: 172.20.20.20
+      startup-config: configs/startup/ord1-edge2.cfg
     jfk1-edge1:
       kind: ceos
       type: ixrd2
-      mgmt_ipv4: 172.20.20.23
+      mgmt_ipv4: 172.20.20.21
+      startup-config: configs/startup/jfk1-edge1.cfg
     jfk1-edge2:
       kind: ceos
       type: ixrd2
-      mgmt_ipv4: 172.20.20.24
+      mgmt_ipv4: 172.20.20.22
+      startup-config: configs/startup/jfk1-edge2.cfg
     atl1-edge1:
       kind: ceos
       type: ixrd2
-      mgmt_ipv4: 172.20.20.25
+      mgmt_ipv4: 172.20.20.17
+      startup-config: configs/startup/atl1-edge1.cfg
+    atl1-edge2:
+      kind: ceos
+      type: ixrd2
+      mgmt_ipv4: 172.20.20.18
+      startup-config: configs/startup/atl1-edge2.cfg
   links:
     - endpoints: ["atl1-edge1:eth1", "atl1-edge2:eth1"]
     - endpoints: ["atl1-edge1:eth2", "atl1-edge2:eth2"]
