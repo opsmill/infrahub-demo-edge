@@ -32,6 +32,7 @@ interface {{intf["name"]["value"]}}
 {%   endif %}
 {%   for ip in intf["ip_addresses"] %}
    ip address {{ ip["address"]["value"] }}
+   no switchport
 {%   endfor %}
 !
 {%   endif %}
