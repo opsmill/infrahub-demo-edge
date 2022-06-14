@@ -33,6 +33,7 @@ interface {{intf["name"]["value"]}}
 {%   for ip in intf["ip_addresses"] %}
    ip address {{ ip["address"]["value"] }}
    no switchport
+   ip ospf network point-to-point
 {%   endfor %}
 !
 {%   endif %}
@@ -58,6 +59,12 @@ router bgp {{ data.device[0].asn.asn.value }}
 {%   endfor %}
 !
 {% endif %}
+!
+router ospf 100
+   redistribute connected
+   max-lsa 12000
+   passive-interface Loopback0
+!
 ip routing
 !
 ip route 0.0.0.0/0 172.20.20.1
