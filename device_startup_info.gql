@@ -4,6 +4,11 @@ query($branch: String!, $device_name: String!) {
         name {
             value
         }
+        asn {
+            asn {
+                value
+            }
+        }
         interfaces {
             id
             name {
@@ -34,6 +39,21 @@ query($branch: String!, $device_name: String!) {
                 address {
                     value
                 }
+            }
+        }
+    }
+    bgp_peer_group {
+        name {
+            value
+        }
+        local_as {
+            asn {
+                value
+            }
+        }
+        remote_as {
+            asn {
+                value
             }
         }
     }
