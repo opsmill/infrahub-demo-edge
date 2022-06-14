@@ -22,7 +22,7 @@ management api netconf
    transport ssh default
 !
 {% for intf in data.device[0]["interfaces"] %}
-{%   if intf.role.slug.value != "management" %}
+{%   if intf.role.slug.value != "management" and intf.role.slug.value != "loopback" %}
 interface {{intf["name"]["value"]}}
 {%   if intf["description"]["value"] %}
    description {{ intf["description"]["value"] }}
@@ -35,7 +35,9 @@ interface {{intf["name"]["value"]}}
 {%   for ip in intf["ip_addresses"] %}
    ip address {{ ip["address"]["value"] }}
    no switchport
+{%   if intf.role.slug.value == "peer" or intf.role.slug.value == "backbone" %}
    ip ospf network point-to-point
+{%   endif %}
 {%   endfor %}
 !
 {%   endif %}
@@ -47,7 +49,13 @@ interface {{intf["name"]["value"]}}
 {%   endfor %}
 !
 {% endfor %}
+{% for intf in data.device[0]["loopback_interface"] %}
+interface {{intf["name"]["value"]}}
+{%   for ip in intf["ip_addresses"] %}
+   ip address {{ ip["address"]["value"] }}
+{%   endfor %}
 !
+{% endfor %}
 {% if data.device[0].asn %}
 router bgp {{ data.device[0].asn.asn.value }}
    router-id {{ loopback_ip }}
