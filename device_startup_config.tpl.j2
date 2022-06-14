@@ -44,6 +44,20 @@ interface {{intf["name"]["value"]}}
 {%   endfor %}
 !
 {% endfor %}
+!
+{% if data.device[0].asn %}
+router bgp {{ data.device[0].asn.asn.value }}
+{%   for peer_group in data.device[0].peer_group %}
+   neighbor {{ peer_group.name.value }} peer group
+{%     if peer_group.local_as %}
+   neighbor {{ peer_group.name.value }} local-as {{ peer_group.local_as.asn.value }}
+{%     endif %}
+{%     if peer_group.remote_as %}
+   neighbor {{ peer_group.name.value }} remote-as {{ peer_group.remote_as.asn.value }}
+{%     endif %}
+{%   endfor %}
+!
+{% endif %}
 ip routing
 !
 ip route 0.0.0.0/0 172.20.20.1

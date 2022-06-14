@@ -1,5 +1,5 @@
-query($branch: String!, $device_name: String!) {
-    device(branch: $branch, name__value: $device_name) {
+query($branch: String!, $device: String!) {
+    device(branch: $branch, name__value: $device) {
         id
         name {
             value
