@@ -47,7 +47,7 @@ interface {{intf["name"]["value"]}}
 !
 {% if data.device[0].asn %}
 router bgp {{ data.device[0].asn.asn.value }}
-{%   for peer_group in data.device[0].peer_group %}
+{%   for peer_group in data.bgp_peer_group %}
    neighbor {{ peer_group.name.value }} peer group
 {%     if peer_group.local_as %}
    neighbor {{ peer_group.name.value }} local-as {{ peer_group.local_as.asn.value }}
