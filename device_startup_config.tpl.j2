@@ -1,3 +1,5 @@
+{% set management_ip = data.device[0].management_interface[0].ip_addresses[0].address.value.split('/')[0] %}
+{% set loopback_ip = data.device[0].loopback_interface[0].ip_addresses[0].address.value.split('/')[0] %}
 no aaa root
 !
 username admin privilege 15 role network-admin secret sha512 $6$q4ez.aZgB/G/eeWW$ukvRobb5RtYmUlCcY0atxhwPmA6FPoRjR3AxYFJqNFoCRgJjrohKGrBsbY12n1uRZeCer1L8oejx5aPlrf.op0
@@ -48,6 +50,7 @@ interface {{intf["name"]["value"]}}
 !
 {% if data.device[0].asn %}
 router bgp {{ data.device[0].asn.asn.value }}
+   router-id {{ loopback_ip }}
 {%   for peer_group in data.bgp_peer_group %}
    neighbor {{ peer_group.name.value }} peer group
 {%     if peer_group.local_as %}
@@ -60,10 +63,12 @@ router bgp {{ data.device[0].asn.asn.value }}
 !
 {% endif %}
 !
-router ospf 100
+router ospf 1
+   router-id {{ loopback_ip }}
    redistribute connected
    max-lsa 12000
    passive-interface Loopback0
+   network 0.0.0.0/0 area 0.0.0.0
 !
 ip routing
 !

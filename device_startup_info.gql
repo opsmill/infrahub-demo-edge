@@ -41,6 +41,16 @@ query($branch: String!, $device: String!) {
                 }
             }
         }
+        loopback_interface: interfaces(role__slug: "loopback") {
+            name {
+                value
+            }
+            ip_addresses {
+                address {
+                    value
+                }
+            }
+        }
     }
     bgp_peer_group {
         name {
