@@ -107,6 +107,128 @@ QUERY_GET_INTERFACE_ALL = """
     }
 """
 
+QUERY_GET_BGP_ALL = """
+    query ($branch: String!, $device: String!, $rebase: Boolean!) {
+        bgp_session (branch: $branch, device__name__value: $device, rebase: $rebase) {
+		    id
+            type {
+                value
+            }
+            peer_group {
+                name {
+                    value
+                }
+            }
+            local_ip {
+                address {
+                    value
+                }
+            }
+            remote_ip {
+                address {
+                    value
+                }
+            }
+            local_as {
+                asn {
+                    value
+                }
+            }
+            remote_as {
+                asn {
+                    value
+                }
+            }
+            description {
+                value
+            }
+            status {
+                slug {
+                    value
+                }
+            }
+            role {
+                slug {
+                    value
+                }
+            }
+        }
+    }
+"""
+
+QUERY_GET_DEVICE_CIRCUIT = """
+    query ($branch: String!, $device: String!, $rebase: Boolean!) {
+        device (branch: $branch, name__value: $device, rebase: $rebase) {
+            interfaces {
+                name {
+                    value
+                }
+                connected_circuit {
+                    circuit {
+                        id
+                        circuit_id {
+                            value
+                        }
+                        vendor_id {
+                            value
+                        }
+                        type {
+                            value
+                        }
+                        role {
+                            slug {
+                                value
+                            }
+                        }
+                        status {
+                            slug {
+                                value
+                            }
+                        }
+                        provider {
+                            name {
+                                value
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+"""
+
+
+QUERY_GET_CIRCUIT = """
+    query ($branch: String!, $circuit: String!, $rebase: Boolean!) {
+        circuit (branch: $branch, circuit_id__value: $circuit, rebase: $rebase) {
+            id
+            circuit_id {
+                value
+            }
+            vendor_id {
+                value
+            }
+            type {
+                value
+            }
+            role {
+                slug {
+                    value
+                }
+            }
+            status {
+                slug {
+                    value
+                }
+            }
+            provider {
+                name {
+                    value
+                }
+            }
+        }
+    }
+"""
 BRANCH_CREATE_DATA_ONLY = """
     mutation($branch: String!) {
         branch_create(data: { name: $branch, is_data_only: true }) {
@@ -178,6 +300,21 @@ INTERFACE_UPDATE_ADMIN_STATUS = """
                 }
                 enabled {
                     value
+                }
+            }
+        }
+    }
+"""
+
+CIRCUIT_UPDATE_STATUS = """
+    mutation($branch: String!, $circuit_id: String!, $status: String!) {
+        circuit_update(branch: $branch, data: { id: $circuit_id, status: $status}){
+            ok
+            object {
+                status {
+                    slug {
+                        value
+                    }
                 }
             }
         }
@@ -307,6 +444,64 @@ async def _change_admin_status(device: str, interface: str, branch: str = "main"
             )
 
 
+async def _change_circuit_status(circuit: str, status: str, branch: str = "main"):
+    console = Console()
+    async with httpx.AsyncClient() as client:
+
+        # Get the status of the Circuit and check it's current status
+        response = await execute_query(
+            client,
+            QUERY_GET_CIRCUIT,
+            {"branch": branch, "circuit": circuit, "rebase": False},
+        )
+        rprint(response)
+        circuit_id = response["data"]["circuit"][0]["id"]
+        current_status = response["data"]["circuit"][0]["status"]["slug"]["value"]
+
+        if current_status == status:
+            console.print(
+                f"Circuit '{circuit}' ({circuit_id[:8]}) status is already '{current_status}', nothing to do"
+            )
+            return False
+
+        console.print(
+            f"Circuit '{circuit}' ({circuit_id[:8]}), is currently '{current_status}'"
+        )
+
+        # Generate a new Branch name
+        new_branch_name = f"update-circuit-{str(uuid.uuid4())[:8]}"
+        response = await execute_query(
+            client, BRANCH_CREATE_DATA_ONLY, {"branch": new_branch_name}, timeout=60
+        )
+        console.print(f"Created the branch '{new_branch_name}' for this change")
+
+        # Update the status of the circuit
+        response = await execute_query(
+            client,
+            CIRCUIT_UPDATE_STATUS,
+            {
+                "branch": new_branch_name,
+                "circuit_id": circuit_id,
+                "status": status,
+            },
+        )
+        console.print(
+            f"Updated the status of the Circuit to `{status}` in `{new_branch_name}`"
+        )
+
+        # Merge the branch
+        response = await execute_query(
+            client, BRANCH_MERGE, {"branch": new_branch_name}, timeout=60
+        )
+        if "errors" in response:
+            for error in response["errors"]:
+                console.print(f"[red]ERROR[/] {error['message']}")
+        elif response["data"]["branch_merge"]["ok"]:
+            console.print(
+                f"[green]SUCCESS[/] Circuit '{circuit}' ({circuit_id[:8]}) successfully updated"
+            )
+
+
 async def _update_description(
     device: str, interface: str, description: str, branch: str
 ):
@@ -349,7 +544,7 @@ async def _update_description(
             )
 
 
-async def _list(device: str, branch: str, rebase: bool):
+async def _list_interface(device: str, branch: str, rebase: bool):
     """List all interfaces for a given device."""
 
     if not branch:
@@ -387,6 +582,123 @@ async def _list(device: str, branch: str, rebase: bool):
         console = Console()
         console.print(table)
 
+
+async def _list_bgp_session(devices: str, branch: str, rebase: bool, internal: bool):
+    """List all BGP Session for a given device."""
+
+    if not branch:
+        repo = Repo(".")
+        branch = str(repo.active_branch)
+
+
+    table = Table(title=f"Devices : {devices} | BGP SESSION | branch '{branch}'")
+    table.add_column("Device")
+    table.add_column("Local IP")
+    table.add_column("Local AS")
+    table.add_column("Remote IP")
+    table.add_column("Remote AS")
+    table.add_column("Peer Group")
+    table.add_column("Status")
+    table.add_column("Role")
+    table.add_column("Type")
+    table.add_column("UUID (short)")
+
+    device_list = devices.split(",")
+
+    async with httpx.AsyncClient() as client:
+
+        for device in device_list:
+            # Get the UUID of the interface and check it's current status
+            response = await execute_query(
+                client,
+                QUERY_GET_BGP_ALL,
+                {"branch": branch, "device": device, "rebase": rebase},
+            )
+
+            for item in response["data"]["bgp_session"]:
+
+
+                status_value = item["status"]["slug"]["value"]
+                status = f"[green]{status_value}" if status_value == "active" else status_value
+
+                type_value = item["type"]["value"]
+                type_str = f"[blue]{type_value}" if type_value == "INTERNAL" else f"[cyan]{type_value}"
+
+                if not internal and type_value == "INTERNAL":
+                    continue
+
+                table.add_row(
+                    device,
+                    "[magenta3]" + item['local_ip']['address']['value'],
+                    str(item['local_as']['asn']['value']),
+                    "[magenta3]" + item['remote_ip']['address']['value'],
+                    str(item['remote_as']['asn']['value']),
+                    item["peer_group"]["name"]["value"] if item["peer_group"] else "",
+                    status,
+                    item["role"]["slug"]["value"],
+                    type_str,
+                    str(item["id"])[:8],
+                )
+
+    console = Console()
+    console.print(table)
+
+
+
+async def _list_circuit(devices: str, branch: str, rebase: bool):
+    """List all Circuit for a given device."""
+
+    if not branch:
+        repo = Repo(".")
+        branch = str(repo.active_branch)
+
+    table = Table(title=f"Devices {devices} | Circuit | branch '{branch}'")
+    table.add_column("Device")
+    table.add_column("Circuit ID")
+    table.add_column("Vendor Circuit ID")
+    table.add_column("Status")
+    table.add_column("Role")
+    table.add_column("Type")
+    table.add_column("UUID (short)")
+
+    device_list = devices.split(",")
+
+    async with httpx.AsyncClient() as client:
+
+        for device in device_list:
+
+            # Get the UUID of the interface and check it's current status
+            response = await execute_query(
+                client,
+                QUERY_GET_DEVICE_CIRCUIT,
+                {"branch": branch, "device": device, "rebase": rebase},
+            )
+
+            for item in response["data"]["device"][0]["interfaces"]:
+
+                if not item["connected_circuit"]:
+                    continue
+
+                circuit = item["connected_circuit"]["circuit"]
+
+                status_value = circuit["status"]["slug"]["value"]
+                status = f"[green]{status_value}" if status_value == "active" else status_value
+
+                type_value = circuit["type"]["value"]
+                type_str = f"[blue]{type_value}" if type_value == "INTERNAL" else f"[cyan]{type_value}"
+
+                table.add_row(
+                    device,
+                    circuit["circuit_id"]["value"],
+                    circuit["vendor_id"]["value"],
+                    status,
+                    circuit["role"]["slug"]["value"],
+                    type_str,
+                    str(circuit["id"])[:8],
+                )
+
+    console = Console()
+    console.print(table)
 
 async def _watch_config(
     device: str, branch: str, interval: int, rfile_name: str = "device_startup"
@@ -485,10 +797,24 @@ async def _generate_startup_config(branch: str):
 
 
 @app.command()
-def list(device: str, branch: str = None, rebase: bool = False):
+def list_interface(device: str, branch: str = None, rebase: bool = False):
     """List all interfaces for a given device."""
-    aiorun(_list(device=device, branch=branch, rebase=rebase))
+    aiorun(_list_interface(device=device, branch=branch, rebase=rebase))
 
+@app.command()
+def list_bgp_session(devices: str, branch: str = None, rebase: bool = False, internal: bool = True):
+    """List all BGP Session for one or multiple device."""
+    aiorun(_list_bgp_session(devices=devices, branch=branch, rebase=rebase, internal=internal))
+
+@app.command()
+def list_circuit(devices: str, branch: str = None, rebase: bool = False):
+    """List all Circuit for one or multiple device."""
+    aiorun(_list_circuit(devices=devices, branch=branch, rebase=rebase))
+
+@app.command()
+def change_circuit_status(circuit: str, status: str):
+    """Update the status of a Circuit in a new branch and merge automatically."""
+    aiorun(_change_circuit_status(circuit=circuit, status=status))
 
 @app.command()
 def change_admin_status(device: str, interface: str):
