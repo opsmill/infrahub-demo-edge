@@ -56,6 +56,14 @@ interface {{intf["name"]["value"]}}
 {%   endfor %}
 !
 {% endfor %}
+!
+ip prefix-list BOGON-Prefixes seq 10 permit 172.16.0.0/12 le
+ip prefix-list BOGON-Prefixes seq 20 permit 192.168.0.0/16 le
+!
+ip routing
+!
+ip route 0.0.0.0/0 172.20.20.1
+!
 {% if data.device[0].asn %}
 router bgp {{ data.device[0].asn.asn.value }}
    router-id {{ loopback_ip }}
@@ -78,8 +86,9 @@ router ospf 1
    passive-interface Loopback0
    network 0.0.0.0/0 area 0.0.0.0
 !
-ip routing
+route-map BOGONS permit 10
+ match ip address prefix-list BOGON-Prefixes
 !
-ip route 0.0.0.0/0 172.20.20.1
+route-map BOGONS deny 20
 !
 end
