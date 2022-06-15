@@ -1,0 +1,31 @@
+query ($branch: String!) {
+    circuit (branch: $branch, role__slug: "transit") {
+        id
+        circuit_id {
+            value
+        }
+        vendor_id {
+            value
+        }
+        type {
+            value
+        }
+        role {
+            slug {
+                value
+            }
+        }
+        status {
+            slug {
+                value
+            }
+        }
+        endpoints {
+            site {
+                name {
+                    value
+                }
+            }
+        }
+    }
+}
