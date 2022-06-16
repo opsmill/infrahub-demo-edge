@@ -229,6 +229,25 @@ QUERY_GET_CIRCUIT = """
         }
     }
 """
+
+QUERY_DEVICE_TRANSIT_INTF = """
+query ($branch: String!, $site: String!, $rebase: Boolean!){
+    device($branch: String!, site__name__value: $site, rebase: $rebase) {
+        id
+        name {
+            value
+        }
+        interfaces(role__slug: "transit") {
+            id
+            name {
+                value
+            }
+        }
+	}
+}
+"""
+
+
 BRANCH_CREATE_DATA_ONLY = """
     mutation($branch: String!) {
         branch_create(data: { name: $branch, is_data_only: true }) {
@@ -337,6 +356,21 @@ INTERFACE_UPDATE_DESCRIPTION = """
     }
 """
 
+def extract_config_from_device_session(session):
+
+    regex = re.compile("\[neighbor\-address=(.*)\]")
+    result = regex.search(session.get("path"))
+    session_id = result.group(1)
+
+    session_config = {
+        "neighbor-address": session_id,
+        "config": None
+    }
+    for key, value in session.get("val").items():
+        if ":config" in key:
+            session_config["config"] = value
+
+    return session_config
 
 async def execute_query(client, query, variables=None, timeout=10, params=None):
     payload = {"query": query, "variables": variables}
@@ -454,7 +488,7 @@ async def _change_circuit_status(circuit: str, status: str, branch: str = "main"
             QUERY_GET_CIRCUIT,
             {"branch": branch, "circuit": circuit, "rebase": False},
         )
-        rprint(response)
+        # rprint(response)
         circuit_id = response["data"]["circuit"][0]["id"]
         current_status = response["data"]["circuit"][0]["status"]["slug"]["value"]
 
@@ -500,6 +534,88 @@ async def _change_circuit_status(circuit: str, status: str, branch: str = "main"
             console.print(
                 f"[green]SUCCESS[/] Circuit '{circuit}' ({circuit_id[:8]}) successfully updated"
             )
+
+
+# async def _add_peering_session(site: str, remote_ip: str, remote_as: int, branch: str = "main"):
+#     console = Console()
+
+#     if not branch:
+#         repo = Repo(".")
+#         branch = str(repo.active_branch)
+
+#     async with httpx.AsyncClient() as client:
+
+#         # Query both devices
+
+#         # Create IP addresses
+#         # Create both sessions
+
+#         # Get all devices and transit interface
+#         response = await execute_query(
+#             client,
+#             QUERY_DEVICE_TRANSIT_INTF,
+#             {"branch": branch, "site": site, "rebase": False},
+#         )
+
+#         rprint(response)
+
+#         # Create the remote IP
+#         new_branch_name = f"update-circuit-{str(uuid.uuid4())[:8]}"
+#         response = await execute_query(
+#             client, BRANCH_CREATE_DATA_ONLY, {"branch": new_branch_name}, timeout=60
+#         )
+#         console.print(f"Created the branch '{new_branch_name}' for this change")
+
+
+#         for device in response["data"]["device"]:
+#             intf_id = device["interfaces"][0]["id"]
+#             intf_name = device["interfaces"][0]["name"]["value"]
+
+#         circuit_id = response["data"]["circuit"][0]["id"]
+#         current_status = response["data"]["circuit"][0]["status"]["slug"]["value"]
+
+#         if current_status == status:
+#             console.print(
+#                 f"Circuit '{circuit}' ({circuit_id[:8]}) status is already '{current_status}', nothing to do"
+#             )
+#             return False
+
+#         console.print(
+#             f"Circuit '{circuit}' ({circuit_id[:8]}), is currently '{current_status}'"
+#         )
+
+#         # Generate a new Branch name
+#         new_branch_name = f"update-circuit-{str(uuid.uuid4())[:8]}"
+#         response = await execute_query(
+#             client, BRANCH_CREATE_DATA_ONLY, {"branch": new_branch_name}, timeout=60
+#         )
+#         console.print(f"Created the branch '{new_branch_name}' for this change")
+
+#         # Update the status of the circuit
+#         response = await execute_query(
+#             client,
+#             CIRCUIT_UPDATE_STATUS,
+#             {
+#                 "branch": new_branch_name,
+#                 "circuit_id": circuit_id,
+#                 "status": status,
+#             },
+#         )
+#         console.print(
+#             f"Updated the status of the Circuit to `{status}` in `{new_branch_name}`"
+#         )
+
+#         # Merge the branch
+#         response = await execute_query(
+#             client, BRANCH_MERGE, {"branch": new_branch_name}, timeout=60
+#         )
+#         if "errors" in response:
+#             for error in response["errors"]:
+#                 console.print(f"[red]ERROR[/] {error['message']}")
+#         elif response["data"]["branch_merge"]["ok"]:
+#             console.print(
+#                 f"[green]SUCCESS[/] Circuit '{circuit}' ({circuit_id[:8]}) successfully updated"
+#             )
 
 
 async def _update_description(
@@ -905,22 +1021,6 @@ async def _manage_bgp_session(device: str, branch: str = None, interval: int = 1
             "insecure":True
         }
 
-        def extract_config_from_device_session(session):
-
-            regex = re.compile("\[neighbor\-address=(.*)\]")
-            result = regex.search(session.get("path"))
-            session_id = result.group(1)
-
-            session_config = {
-                "neighbor-address": session_id,
-                "config": None
-            }
-            for key, value in session.get("val").items():
-                if ":config" in key:
-                    session_config["config"] = value
-
-            return session_config
-
         async with httpx.AsyncClient() as client:
             infrahub_bgp_config = await get_bgp_neighbor_config(client=client, device=device)
 
@@ -965,9 +1065,59 @@ async def _manage_bgp_session(device: str, branch: str = None, interval: int = 1
 
         time.sleep(interval)
 
+
+async def _get_bgp_config(device: str, branch: str = None):
+
+    console = Console()
+    current_config = None
+
+    if not branch:
+        repo = Repo(".")
+        branch = str(repo.active_branch)
+
+    console.log(f"-- Get BGP Config for '{device}' --")
+
+    async with httpx.AsyncClient() as client:
+        # Get the list of all devices
+        response = await execute_query(
+            client,
+            QUERY_GET_DEVICE_MANAGEMENT_IP,
+            {"branch": branch, "device": device},
+        )
+
+    mgmt_ip_address = response["data"]["device"][0]["interfaces"][0]["ip_addresses"][0]["address"]["value"].split("/")[0]
+
+    device_conn = {
+        "target": (mgmt_ip_address, ARISTA_PORT),
+        "username": ARISTA_USERNAME,
+        "password": ARISTA_PASSWORD,
+        "insecure":True
+    }
+
+    with gNMIclient(**device_conn) as gc:
+        response = gc.get(path=[OC_BGP_NEIGHBOR_PATH], encoding="json_ietf")
+        device_sessions = response.get("notification")[0].get("update", [])
+
+        device_bgp_config = {
+            'openconfig-bgp:neighbors': {
+            'neighbor': [ extract_config_from_device_session(session) for session in device_sessions]
+            }
+        }
+
+        rprint(device_sessions)
+        rprint(device_bgp_config)
+
+
+
 @app.command()
 def manage_bgp_session(device: str, branch: str = None):
     aiorun(_manage_bgp_session(device=device, branch=branch))
+
+
+@app.command()
+def get_bgp_config(device: str, branch: str = None):
+    aiorun(_get_bgp_config(device=device, branch=branch))
+
 
 if __name__ == "__main__":
     app()

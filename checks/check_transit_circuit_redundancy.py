@@ -23,7 +23,7 @@ class InfrahubCheckTransitCircuitRedundancy(InfrahubCheck):
         for site_name, site in transit_per_site.items():
             if site.get("active", 0) / site["total"] < 0.6:
                 self.log_error(
-                    message=f"{site_name} has less than 60% of transit circuit operational ({site.get('active', 0)}/{site['total']}).",
+                    message=f"{site_name} has less than 60% of transit circuit operational ({site.get('active', 0)}/{site['total']})",
                     object_id=circuit_id,
                     object_type="circuit",
                 )

@@ -57,8 +57,8 @@ interface {{intf["name"]["value"]}}
 !
 {% endfor %}
 !
-ip prefix-list BOGON-Prefixes seq 10 permit 172.16.0.0/12 le
-ip prefix-list BOGON-Prefixes seq 20 permit 192.168.0.0/16 le
+ip prefix-list BOGON-Prefixes seq 10 permit 172.16.0.0/12 le 24
+ip prefix-list BOGON-Prefixes seq 20 permit 192.168.0.0/16 le 24
 !
 ip routing
 !
