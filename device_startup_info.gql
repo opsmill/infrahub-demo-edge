@@ -52,7 +52,7 @@ query($branch: String!, $device: String!) {
             }
         }
     }
-    bgp_peer_group {
+    bgp_peer_group(branch: $branch ) {
         name {
             value
         }
