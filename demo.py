@@ -33,7 +33,7 @@ QUERY_GET_DEVICES = """
                 value
             }
             role {
-                slug {
+                name {
                     value
                 }
             }
@@ -48,7 +48,7 @@ QUERY_GET_DEVICE_MANAGEMENT_IP = """
             name {
                 value
             }
-            interfaces(role__slug: "management") {
+            interfaces(role__name: "management") {
                 id
                 ip_addresses {
                     address {
@@ -93,12 +93,12 @@ QUERY_GET_INTERFACE_ALL = """
                     value
                 }
                 status {
-                    slug {
+                    name {
                         value
                     }
                 }
                 role {
-                    slug {
+                    name {
                         value
                     }
                 }
@@ -143,12 +143,12 @@ QUERY_GET_BGP_ALL = """
                 value
             }
             status {
-                slug {
+                name {
                     value
                 }
             }
             role {
-                slug {
+                name {
                     value
                 }
             }
@@ -172,16 +172,13 @@ QUERY_GET_DEVICE_CIRCUIT = """
                         vendor_id {
                             value
                         }
-                        type {
-                            value
-                        }
                         role {
-                            slug {
+                            name {
                                 value
                             }
                         }
                         status {
-                            slug {
+                            name {
                                 value
                             }
                         }
@@ -212,12 +209,12 @@ QUERY_GET_CIRCUIT = """
                 value
             }
             role {
-                slug {
+                name {
                     value
                 }
             }
             status {
-                slug {
+                name {
                     value
                 }
             }
@@ -237,7 +234,7 @@ query ($branch: String!, $site: String!, $rebase: Boolean!){
         name {
             value
         }
-        interfaces(role__slug: "transit") {
+        interfaces(role__name__value: "transit") {
             id
             name {
                 value
@@ -331,7 +328,7 @@ CIRCUIT_UPDATE_STATUS = """
             ok
             object {
                 status {
-                    slug {
+                    name {
                         value
                     }
                 }
@@ -490,7 +487,7 @@ async def _change_circuit_status(circuit: str, status: str, branch: str = "main"
         )
         # rprint(response)
         circuit_id = response["data"]["circuit"][0]["id"]
-        current_status = response["data"]["circuit"][0]["status"]["slug"]["value"]
+        current_status = response["data"]["circuit"][0]["status"]["name"]["value"]
 
         if current_status == status:
             console.print(
@@ -572,7 +569,7 @@ async def _change_circuit_status(circuit: str, status: str, branch: str = "main"
 #             intf_name = device["interfaces"][0]["name"]["value"]
 
 #         circuit_id = response["data"]["circuit"][0]["id"]
-#         current_status = response["data"]["circuit"][0]["status"]["slug"]["value"]
+#         current_status = response["data"]["circuit"][0]["status"]["name"]["value"]
 
 #         if current_status == status:
 #             console.print(
@@ -667,6 +664,8 @@ async def _list_interface(device: str, branch: str, rebase: bool):
         repo = Repo(".")
         branch = str(repo.active_branch)
 
+    console = Console()
+
     async with httpx.AsyncClient() as client:
 
         # Get the UUID of the interface and check it's current status
@@ -675,6 +674,11 @@ async def _list_interface(device: str, branch: str, rebase: bool):
             QUERY_GET_INTERFACE_ALL,
             {"branch": branch, "device": device, "rebase": rebase},
         )
+
+        if errors := response.get("errors"):
+            for error in errors:
+                console.log(error["message"])
+            return
 
         table = Table(title=f"Device {device} | Interfaces | branch '{branch}'")
 
@@ -688,14 +692,13 @@ async def _list_interface(device: str, branch: str, rebase: bool):
         for intf in response["data"]["device"][0]["interfaces"]:
             table.add_row(
                 intf["name"]["value"],
-                intf["status"]["slug"]["value"],
-                intf["role"]["slug"]["value"],
+                intf["status"]["name"]["value"],
+                intf["role"]["name"]["value"],
                 intf["description"]["value"],
                 "[green]True" if intf["enabled"]["value"] else "[red]False",
                 str(intf["id"])[:8],
             )
 
-        console = Console()
         console.print(table)
 
 
@@ -706,6 +709,7 @@ async def _list_bgp_session(devices: str, branch: str, rebase: bool, internal: b
         repo = Repo(".")
         branch = str(repo.active_branch)
 
+    console = Console()
 
     table = Table(title=f"Devices : {devices} | BGP SESSION | branch '{branch}'")
     table.add_column("Device")
@@ -731,10 +735,14 @@ async def _list_bgp_session(devices: str, branch: str, rebase: bool, internal: b
                 {"branch": branch, "device": device, "rebase": rebase},
             )
 
+            if errors := response.get("errors"):
+                for error in errors:
+                    console.log(error["message"])
+                return
+
             for item in response["data"]["bgp_session"]:
 
-
-                status_value = item["status"]["slug"]["value"]
+                status_value = item["status"]["name"]["value"]
                 status = f"[green]{status_value}" if status_value == "active" else status_value
 
                 type_value = item["type"]["value"]
@@ -751,12 +759,12 @@ async def _list_bgp_session(devices: str, branch: str, rebase: bool, internal: b
                     str(item['remote_as']['asn']['value']),
                     item["peer_group"]["name"]["value"] if item["peer_group"] else "",
                     status,
-                    item["role"]["slug"]["value"],
+                    item["role"]["name"]["value"],
                     type_str,
                     str(item["id"])[:8],
                 )
 
-    console = Console()
+
     console.print(table)
 
 
@@ -768,13 +776,15 @@ async def _list_circuit(devices: str, branch: str, rebase: bool):
         repo = Repo(".")
         branch = str(repo.active_branch)
 
+    console = Console()
+
     table = Table(title=f"Devices {devices} | Circuit | branch '{branch}'")
     table.add_column("Device")
     table.add_column("Circuit ID")
     table.add_column("Vendor Circuit ID")
     table.add_column("Status")
     table.add_column("Role")
-    table.add_column("Type")
+    # table.add_column("Type")
     table.add_column("UUID (short)")
 
     device_list = devices.split(",")
@@ -790,6 +800,11 @@ async def _list_circuit(devices: str, branch: str, rebase: bool):
                 {"branch": branch, "device": device, "rebase": rebase},
             )
 
+            if errors := response.get("errors"):
+                for error in errors:
+                    console.log(error["message"])
+                return
+
             for item in response["data"]["device"][0]["interfaces"]:
 
                 if not item["connected_circuit"]:
@@ -797,23 +812,23 @@ async def _list_circuit(devices: str, branch: str, rebase: bool):
 
                 circuit = item["connected_circuit"]["circuit"]
 
-                status_value = circuit["status"]["slug"]["value"]
+                status_value = circuit["status"]["name"]["value"]
                 status = f"[green]{status_value}" if status_value == "active" else status_value
 
-                type_value = circuit["type"]["value"]
-                type_str = f"[blue]{type_value}" if type_value == "INTERNAL" else f"[cyan]{type_value}"
+                # type_value = circuit["type"]["value"]
+                # type_str = f"[blue]{type_value}" if type_value == "INTERNAL" else f"[cyan]{type_value}"
 
                 table.add_row(
                     device,
                     circuit["circuit_id"]["value"],
                     circuit["vendor_id"]["value"],
                     status,
-                    circuit["role"]["slug"]["value"],
-                    type_str,
+                    circuit["role"]["name"]["value"],
+                    # type_str,
                     str(circuit["id"])[:8],
                 )
 
-    console = Console()
+
     console.print(table)
 
 async def _watch_config(
