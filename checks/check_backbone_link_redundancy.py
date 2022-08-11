@@ -4,37 +4,7 @@ from infrahub.checks import InfrahubCheck
 
 class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
 
-    query = """
-        query ($branch: String!) {
-            circuit(role__name__value: "backbone") {
-                id
-                circuit_id {
-                    value
-                }
-                vendor_id {
-                    value
-                }
-                status {
-                    name {
-                        value
-                    }
-                }
-                endpoints {
-                    site {
-                        id
-                        name {
-                            value
-                        }
-                    }
-                    connected_interface {
-                        enabled {
-                            value
-                        }
-                    }
-                }
-            }
-        }
-    """
+    query = "check_backbone_link_redundancy"
 
     def validate(self):
 
