@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from rich import print as rprint
 from infrahub.checks import InfrahubCheck
 
 class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
@@ -13,7 +14,6 @@ class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
         backbone_links_per_site = defaultdict(lambda: defaultdict(int))
 
         for circuit in self.data["data"]["circuit"]:
-            circuit_id = circuit["id"]
             status = circuit["status"]["name"]["value"]
 
             for endpoint in circuit["endpoints"]:

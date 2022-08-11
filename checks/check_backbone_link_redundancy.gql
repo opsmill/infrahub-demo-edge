@@ -1,5 +1,5 @@
-query ($branch: String!) {
-    circuit(branch: $branch, role__name__value: "backbone") {
+query ($branch: String!, $rebase: Boolean!) {
+    circuit(branch: $branch, role__name__value: "backbone", rebase: $rebase) {
         id
         circuit_id {
             value
