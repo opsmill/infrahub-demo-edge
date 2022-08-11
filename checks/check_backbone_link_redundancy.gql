@@ -1,5 +1,5 @@
 query ($branch: String!) {
-    circuit (branch: $branch, role__slug: "transit") {
+    circuit(role__name__value: "backbone") {
         id
         circuit_id {
             value
@@ -7,22 +7,20 @@ query ($branch: String!) {
         vendor_id {
             value
         }
-        type {
-            value
-        }
-        role {
-            slug {
-                value
-            }
-        }
         status {
-            slug {
+            name {
                 value
             }
         }
         endpoints {
             site {
+                id
                 name {
+                    value
+                }
+            }
+            connected_interface {
+                enabled {
                     value
                 }
             }
