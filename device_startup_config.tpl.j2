@@ -1,5 +1,12 @@
-{% set management_ip = data.device[0].management_interface[0].ip_addresses[0].address.value.split('/')[0] %}
-{% set loopback_ip = data.device[0].loopback_interface[0].ip_addresses[0].address.value.split('/')[0] %}
+{% for intf in data.device[0].interfaces %}
+{%   if intf.role.name.value == "loopback" %}
+{%     set loopback_intf_name = intf.name.value %}
+{%     set loopback_ip = intf.ip_addresses[0].address.value.split('/')[0] %}
+{%   elif intf.role.name.value == "management" %}
+{%     set management_intf_name = intf.name.value %}
+{%     set management_ip = intf.ip_addresses[0].address.value.split('/')[0] %}
+{%   endif %}
+{% endfor %}
 no aaa root
 !
 username admin privilege 15 role network-admin secret sha512 $6$q4ez.aZgB/G/eeWW$ukvRobb5RtYmUlCcY0atxhwPmA6FPoRjR3AxYFJqNFoCRgJjrohKGrBsbY12n1uRZeCer1L8oejx5aPlrf.op0
@@ -22,7 +29,7 @@ management api netconf
    transport ssh default
 !
 {% for intf in data.device[0]["interfaces"] %}
-{%   if intf.role.name.value != "management" and intf.role.name.value != "loopback" %}
+{%   if intf.name.value != management_intf_name and intf.name.value != loopback_intf_name %}
 interface {{intf["name"]["value"]}}
 {%   if intf["description"]["value"] %}
    description {{ intf["description"]["value"] }}
@@ -42,20 +49,23 @@ interface {{intf["name"]["value"]}}
 !
 {%   endif %}
 {% endfor %}
-{#
-{% for intf in data.device[0]["management_interface"] %}
-interface {{intf["name"]["value"]}}
-{%   for ip in intf["ip_addresses"] %}
-   ip address {{ ip["address"]["value"] }}
-{%   endfor %}
 !
+interface {{ management_intf_name }}
+{% for intf in data.device[0]["interfaces"] %}
+{%   if intf.name.value == management_intf_name %}
+{%     for ip in intf["ip_addresses"] %}
+   ip address {{ ip["address"]["value"] }}
+{%     endfor %}
+{%   endif %}
 {% endfor %}
-{% for intf in data.device[0]["loopback_interface"] %}
-interface {{intf["name"]["value"]}}
-{%   for ip in intf["ip_addresses"] %}
-   ip address {{ ip["address"]["value"] }}
-{%   endfor %} #}
 !
+interface {{ loopback_intf_name }}
+{% for intf in data.device[0]["interfaces"] %}
+{%  if intf.name.value == loopback_intf_name %}
+{%     for ip in intf["ip_addresses"] %}
+   ip address {{ ip["address"]["value"] }}
+{%     endfor %}
+{%   endif %}
 {% endfor %}
 !
 ip prefix-list BOGON-Prefixes seq 10 permit 172.16.0.0/12 le 24
