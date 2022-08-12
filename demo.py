@@ -48,7 +48,7 @@ QUERY_GET_DEVICE_MANAGEMENT_IP = """
             name {
                 value
             }
-            interfaces(role__name: "management") {
+            interfaces {
                 id
                 ip_addresses {
                     address {
@@ -477,7 +477,7 @@ async def _change_admin_status(device: str, interface: str, branch: str = "main"
 
         # Merge the branch
         response = await execute_query(
-            client, BRANCH_MERGE, {"branch": new_branch_name}, timeout=60
+            client, BRANCH_MERGE, variables={"branch": new_branch_name}, timeout=60
         )
         if "errors" in response:
             for error in response["errors"]:
@@ -527,8 +527,8 @@ async def _change_circuit_status(circuit: str, status: str, branch: str = "main"
         response = await execute_query(
             client,
             CIRCUIT_UPDATE_STATUS,
-            {
-                "branch": new_branch_name,
+            branch=new_branch_name,
+            variables={
                 "circuit_id": circuit_id,
                 "status": status,
             },
@@ -647,7 +647,8 @@ async def _update_description(
         response = await execute_query(
             client,
             QUERY_GET_INTERFACE,
-            {"branch": branch, "device": device, "interface": interface},
+            branch=branch,
+            variables={"device": device, "interface": interface},
         )
         interface_id = response["data"]["device"][0]["interfaces"][0]["id"]
         console.print(
@@ -1061,11 +1062,12 @@ async def _manage_bgp_session(device: str, branch: str = None, interval: int = 1
         response = await execute_query(
             client,
             QUERY_GET_DEVICE_MANAGEMENT_IP,
-            branch=branch,
+            branch=branch,  
             variables={"device": device},
         )
 
-    mgmt_ip_address = response["data"]["device"][0]["interfaces"][0]["ip_addresses"][0][
+    mgmt_interface = [intf for intf in response["data"]["device"][0]["interfaces"] if intf["role"]["name"]["value"] == "management"][0]
+    mgmt_ip_address = mgmt_interface["ip_addresses"][0][
         "address"
     ]["value"].split("/")[0]
 
@@ -1164,12 +1166,15 @@ async def _get_bgp_config(device: str, branch: str = None):
         response = await execute_query(
             client,
             QUERY_GET_DEVICE_MANAGEMENT_IP,
-            {"branch": branch, "device": device},
+            branch=branch,
+            variables={"device": device},
         )
 
-    mgmt_ip_address = response["data"]["device"][0]["interfaces"][0]["ip_addresses"][0][
+    mgmt_interface = [intf for intf in response["data"]["device"][0]["interfaces"] if intf["role"]["name"]["value"] == "management"][0]
+    mgmt_ip_address = mgmt_interface["ip_addresses"][0][
         "address"
     ]["value"].split("/")[0]
+
 
     device_conn = {
         "target": (mgmt_ip_address, ARISTA_PORT),
