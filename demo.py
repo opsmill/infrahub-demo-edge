@@ -1062,14 +1062,18 @@ async def _manage_bgp_session(device: str, branch: str = None, interval: int = 1
         response = await execute_query(
             client,
             QUERY_GET_DEVICE_MANAGEMENT_IP,
-            branch=branch,  
+            branch=branch,
             variables={"device": device},
         )
 
-    mgmt_interface = [intf for intf in response["data"]["device"][0]["interfaces"] if intf["role"]["name"]["value"] == "management"][0]
-    mgmt_ip_address = mgmt_interface["ip_addresses"][0][
-        "address"
-    ]["value"].split("/")[0]
+    mgmt_interface = [
+        intf
+        for intf in response["data"]["device"][0]["interfaces"]
+        if intf["role"]["name"]["value"] == "management"
+    ][0]
+    mgmt_ip_address = mgmt_interface["ip_addresses"][0]["address"]["value"].split("/")[
+        0
+    ]
 
     # Add a Loop
     while True:
@@ -1170,11 +1174,14 @@ async def _get_bgp_config(device: str, branch: str = None):
             variables={"device": device},
         )
 
-    mgmt_interface = [intf for intf in response["data"]["device"][0]["interfaces"] if intf["role"]["name"]["value"] == "management"][0]
-    mgmt_ip_address = mgmt_interface["ip_addresses"][0][
-        "address"
-    ]["value"].split("/")[0]
-
+    mgmt_interface = [
+        intf
+        for intf in response["data"]["device"][0]["interfaces"]
+        if intf["role"]["name"]["value"] == "management"
+    ][0]
+    mgmt_ip_address = mgmt_interface["ip_addresses"][0]["address"]["value"].split("/")[
+        0
+    ]
 
     device_conn = {
         "target": (mgmt_ip_address, ARISTA_PORT),
