@@ -26,8 +26,8 @@ OC_BGP_BASE_PATH = f"openconfig:/network-instances/network-instance[name=default
 OC_BGP_NEIGHBOR_PATH = f"{OC_BGP_BASE_PATH}/neighbors/neighbor"
 
 QUERY_GET_DEVICES = """
-    query ($branch: String!) {
-        device (branch: $branch) {
+    query {
+        device {
             id
             name {
                 value
@@ -42,8 +42,8 @@ QUERY_GET_DEVICES = """
 """
 
 QUERY_GET_DEVICE_MANAGEMENT_IP = """
-    query ($branch: String!, $device: String!) {
-        device (name__value: $device, branch: $branch) {
+    query ($device: String!) {
+        device (name__value: $device) {
             id
             name {
                 value
@@ -61,8 +61,8 @@ QUERY_GET_DEVICE_MANAGEMENT_IP = """
 """
 
 QUERY_GET_INTERFACE = """
-    query ($branch: String!, $device: String!, $interface: String!) {
-        device (branch: $branch, name__value: $device) {
+    query ($device: String!, $interface: String!) {
+        device (name__value: $device) {
             id
             interfaces(name__value: $interface) {
                 id
@@ -78,8 +78,8 @@ QUERY_GET_INTERFACE = """
 """
 
 QUERY_GET_INTERFACE_ALL = """
-    query ($branch: String!, $device: String!, $rebase: Boolean!) {
-        device (branch: $branch, name__value: $device, rebase: $rebase) {
+    query ($device: String!) {
+        device (name__value: $device) {
             id
             interfaces {
                 id
@@ -108,8 +108,8 @@ QUERY_GET_INTERFACE_ALL = """
 """
 
 QUERY_GET_BGP_ALL = """
-    query ($branch: String!, $device: String!, $rebase: Boolean!) {
-        bgp_session (branch: $branch, device__name__value: $device, rebase: $rebase) {
+    query ($device: String!) {
+        bgp_session (device__name__value: $device) {
 		    id
             type {
                 value
@@ -157,8 +157,8 @@ QUERY_GET_BGP_ALL = """
 """
 
 QUERY_GET_DEVICE_CIRCUIT = """
-    query ($branch: String!, $device: String!, $rebase: Boolean!) {
-        device (branch: $branch, name__value: $device, rebase: $rebase) {
+    query ($device: String!) {
+        device (name__value: $device) {
             interfaces {
                 name {
                     value
@@ -196,8 +196,8 @@ QUERY_GET_DEVICE_CIRCUIT = """
 
 
 QUERY_GET_CIRCUIT = """
-    query ($branch: String!, $circuit: String!, $rebase: Boolean!) {
-        circuit (branch: $branch, circuit_id__value: $circuit, rebase: $rebase) {
+    query ($circuit: String!) {
+        circuit (circuit_id__value: $circuit) {
             id
             circuit_id {
                 value
@@ -228,8 +228,8 @@ QUERY_GET_CIRCUIT = """
 """
 
 QUERY_DEVICE_TRANSIT_INTF = """
-query ($branch: String!, $site: String!, $rebase: Boolean!){
-    device($branch: String!, site__name__value: $site, rebase: $rebase) {
+query ($site: String!){
+    device(site__name__value: $site) {
         id
         name {
             value
@@ -307,8 +307,8 @@ BRANCH_REBASE = """
     """
 
 INTERFACE_UPDATE_ADMIN_STATUS = """
-    mutation($branch: String!, $interface_id: String!, $admin_status: Boolean!) {
-        interface_update(branch: $branch, data: { id: $interface_id, enabled: { value: $admin_status}}){
+    mutation($interface_id: String!, $admin_status: Boolean!) {
+        interface_update(data: { id: $interface_id, enabled: { value: $admin_status}}){
             ok
             object {
                 name {
@@ -323,8 +323,8 @@ INTERFACE_UPDATE_ADMIN_STATUS = """
 """
 
 CIRCUIT_UPDATE_STATUS = """
-    mutation($branch: String!, $circuit_id: String!, $status: String!) {
-        circuit_update(branch: $branch, data: { id: $circuit_id, status: $status}){
+    mutation($circuit_id: String!, $status: String!) {
+        circuit_update(data: { id: $circuit_id, status: $status}){
             ok
             object {
                 status {
@@ -338,8 +338,8 @@ CIRCUIT_UPDATE_STATUS = """
 """
 
 INTERFACE_UPDATE_DESCRIPTION = """
-    mutation($branch: String!, $interface_id: String!, $description: String!) {
-        interface_update(branch: $branch, data: { id: $interface_id, description: { value: $description}}){
+    mutation($interface_id: String!, $description: String!) {
+        interface_update(data: { id: $interface_id, description: { value: $description}}){
             ok
             object {
                 name {
@@ -353,27 +353,39 @@ INTERFACE_UPDATE_DESCRIPTION = """
     }
 """
 
+
 def extract_config_from_device_session(session):
 
     regex = re.compile("\[neighbor\-address=(.*)\]")
     result = regex.search(session.get("path"))
     session_id = result.group(1)
 
-    session_config = {
-        "neighbor-address": session_id,
-        "config": None
-    }
+    session_config = {"neighbor-address": session_id, "config": None}
     for key, value in session.get("val").items():
         if ":config" in key:
             session_config["config"] = value
 
     return session_config
 
-async def execute_query(client, query, variables=None, timeout=10, params=None):
+
+async def execute_query(
+    client,
+    query,
+    branch: str = "main",
+    at=None,
+    rebase: bool = False,
+    variables=None,
+    timeout=10,
+    params=None,
+):
     payload = {"query": query, "variables": variables}
     params = params if params else {}
+    if at and "at" not in params:
+        params["at"] = at
+    if "rebase" not in params:
+        params["rebase"] = str(rebase)
     response = await client.post(
-        f"{INFRAHUB_URL}/graphql", json=payload, timeout=timeout, params=params
+        f"{INFRAHUB_URL}/graphql/{branch}", json=payload, timeout=timeout, params=params
     )
     response.raise_for_status()
     return response.json()
@@ -385,21 +397,18 @@ async def get_bgp_neighbor_config(client, device, timeout=10, params=None):
     params["device"] = device
 
     response = await client.get(
-        f"{INFRAHUB_URL}/openconfig/network-instances/network-instance/protocols/protocol/bgp/neighbors", timeout=timeout, params=params
+        f"{INFRAHUB_URL}/openconfig/network-instances/network-instance/protocols/protocol/bgp/neighbors",
+        timeout=timeout,
+        params=params,
     )
     response.raise_for_status()
     return response.json()
 
 
-async def get_rfile(client, rfile_name: str, params: dict, branch: str = "main"):
-
-    if not params:
-        params = {"branch": branch}
-    else:
-        params["branch"] = branch
+async def get_rfile(client, rfile_name: str, params: dict = None, branch: str = "main"):
 
     url = f"{INFRAHUB_URL}/rfile/{rfile_name}?branch={branch}"
-    response = await client.get(url, params=params)
+    response = await client.get(url, params=params or {})
     response.raise_for_status()
     return response.text
 
@@ -427,7 +436,8 @@ async def _change_admin_status(device: str, interface: str, branch: str = "main"
         response = await execute_query(
             client,
             QUERY_GET_INTERFACE,
-            {"branch": branch, "device": device, "interface": interface},
+            branch=branch,
+            variables={"device": device, "interface": interface},
         )
         interface_id = response["data"]["device"][0]["interfaces"][0]["id"]
         interface_status = response["data"]["device"][0]["interfaces"][0]["enabled"][
@@ -442,7 +452,10 @@ async def _change_admin_status(device: str, interface: str, branch: str = "main"
         # Generate a new Branch name
         new_branch_name = f"update-intf-{str(uuid.uuid4())[:8]}"
         response = await execute_query(
-            client, BRANCH_CREATE_DATA_ONLY, {"branch": new_branch_name}, timeout=60
+            client,
+            BRANCH_CREATE_DATA_ONLY,
+            variables={"branch": new_branch_name},
+            timeout=60,
         )
         console.print(f"Created the branch '{new_branch_name}' for this change")
         # rprint(response)
@@ -451,8 +464,8 @@ async def _change_admin_status(device: str, interface: str, branch: str = "main"
         response = await execute_query(
             client,
             INTERFACE_UPDATE_ADMIN_STATUS,
-            {
-                "branch": new_branch_name,
+            branch=new_branch_name,
+            variables={
                 "interface_id": interface_id,
                 "admin_status": not interface_status,
             },
@@ -483,7 +496,8 @@ async def _change_circuit_status(circuit: str, status: str, branch: str = "main"
         response = await execute_query(
             client,
             QUERY_GET_CIRCUIT,
-            {"branch": branch, "circuit": circuit, "rebase": False},
+            branch=branch,
+            variables={"circuit": circuit},
         )
         # rprint(response)
         circuit_id = response["data"]["circuit"][0]["id"]
@@ -502,7 +516,10 @@ async def _change_circuit_status(circuit: str, status: str, branch: str = "main"
         # Generate a new Branch name
         new_branch_name = f"update-circuit-{str(uuid.uuid4())[:8]}"
         response = await execute_query(
-            client, BRANCH_CREATE_DATA_ONLY, {"branch": new_branch_name}, timeout=60
+            client,
+            BRANCH_CREATE_DATA_ONLY,
+            variables={"branch": new_branch_name},
+            timeout=60,
         )
         console.print(f"Created the branch '{new_branch_name}' for this change")
 
@@ -522,7 +539,7 @@ async def _change_circuit_status(circuit: str, status: str, branch: str = "main"
 
         # Merge the branch
         response = await execute_query(
-            client, BRANCH_MERGE, {"branch": new_branch_name}, timeout=60
+            client, BRANCH_MERGE, variables={"branch": new_branch_name}, timeout=60
         )
         if "errors" in response:
             for error in response["errors"]:
@@ -641,8 +658,8 @@ async def _update_description(
         response = await execute_query(
             client,
             INTERFACE_UPDATE_DESCRIPTION,
-            {
-                "branch": branch,
+            branch=branch,
+            variables={
                 "interface_id": interface_id,
                 "description": description,
             },
@@ -672,7 +689,9 @@ async def _list_interface(device: str, branch: str, rebase: bool):
         response = await execute_query(
             client,
             QUERY_GET_INTERFACE_ALL,
-            {"branch": branch, "device": device, "rebase": rebase},
+            branch=branch,
+            variables={"device": device},
+            rebase=rebase,
         )
 
         if errors := response.get("errors"):
@@ -732,7 +751,9 @@ async def _list_bgp_session(devices: str, branch: str, rebase: bool, internal: b
             response = await execute_query(
                 client,
                 QUERY_GET_BGP_ALL,
-                {"branch": branch, "device": device, "rebase": rebase},
+                branch=branch,
+                variables={"device": device},
+                rebase=rebase,
             )
 
             if errors := response.get("errors"):
@@ -743,20 +764,28 @@ async def _list_bgp_session(devices: str, branch: str, rebase: bool, internal: b
             for item in response["data"]["bgp_session"]:
 
                 status_value = item["status"]["name"]["value"]
-                status = f"[green]{status_value}" if status_value == "active" else status_value
+                status = (
+                    f"[green]{status_value}"
+                    if status_value == "active"
+                    else status_value
+                )
 
                 type_value = item["type"]["value"]
-                type_str = f"[blue]{type_value}" if type_value == "INTERNAL" else f"[cyan]{type_value}"
+                type_str = (
+                    f"[blue]{type_value}"
+                    if type_value == "INTERNAL"
+                    else f"[cyan]{type_value}"
+                )
 
                 if not internal and type_value == "INTERNAL":
                     continue
 
                 table.add_row(
                     device,
-                    "[magenta3]" + item['local_ip']['address']['value'],
-                    str(item['local_as']['asn']['value']),
-                    "[magenta3]" + item['remote_ip']['address']['value'],
-                    str(item['remote_as']['asn']['value']),
+                    "[magenta3]" + item["local_ip"]["address"]["value"],
+                    str(item["local_as"]["asn"]["value"]),
+                    "[magenta3]" + item["remote_ip"]["address"]["value"],
+                    str(item["remote_as"]["asn"]["value"]),
                     item["peer_group"]["name"]["value"] if item["peer_group"] else "",
                     status,
                     item["role"]["name"]["value"],
@@ -764,9 +793,7 @@ async def _list_bgp_session(devices: str, branch: str, rebase: bool, internal: b
                     str(item["id"])[:8],
                 )
 
-
     console.print(table)
-
 
 
 async def _list_circuit(devices: str, branch: str, rebase: bool):
@@ -797,7 +824,9 @@ async def _list_circuit(devices: str, branch: str, rebase: bool):
             response = await execute_query(
                 client,
                 QUERY_GET_DEVICE_CIRCUIT,
-                {"branch": branch, "device": device, "rebase": rebase},
+                branch=branch,
+                variables={"device": device},
+                rebase=rebase,
             )
 
             if errors := response.get("errors"):
@@ -813,7 +842,11 @@ async def _list_circuit(devices: str, branch: str, rebase: bool):
                 circuit = item["connected_circuit"]["circuit"]
 
                 status_value = circuit["status"]["name"]["value"]
-                status = f"[green]{status_value}" if status_value == "active" else status_value
+                status = (
+                    f"[green]{status_value}"
+                    if status_value == "active"
+                    else status_value
+                )
 
                 # type_value = circuit["type"]["value"]
                 # type_str = f"[blue]{type_value}" if type_value == "INTERNAL" else f"[cyan]{type_value}"
@@ -828,8 +861,8 @@ async def _list_circuit(devices: str, branch: str, rebase: bool):
                     str(circuit["id"])[:8],
                 )
 
-
     console.print(table)
+
 
 async def _watch_config(
     device: str, branch: str, interval: int, rfile_name: str = "device_startup"
@@ -901,11 +934,7 @@ async def _generate_startup_config(branch: str):
 
     async with httpx.AsyncClient() as client:
         # Get the list of all devices
-        response = await execute_query(
-            client,
-            QUERY_GET_DEVICES,
-            {"branch": branch},
-        )
+        response = await execute_query(client, QUERY_GET_DEVICES, branch=branch)
 
         for device in response["data"]["device"]:
             device_name = device["name"]["value"]
@@ -932,20 +961,30 @@ def list_interface(device: str, branch: str = None, rebase: bool = False):
     """List all interfaces for a given device."""
     aiorun(_list_interface(device=device, branch=branch, rebase=rebase))
 
+
 @app.command()
-def list_bgp_session(devices: str, branch: str = None, rebase: bool = False, internal: bool = True):
+def list_bgp_session(
+    devices: str, branch: str = None, rebase: bool = False, internal: bool = True
+):
     """List all BGP Session for one or multiple device."""
-    aiorun(_list_bgp_session(devices=devices, branch=branch, rebase=rebase, internal=internal))
+    aiorun(
+        _list_bgp_session(
+            devices=devices, branch=branch, rebase=rebase, internal=internal
+        )
+    )
+
 
 @app.command()
 def list_circuit(devices: str, branch: str = None, rebase: bool = False):
     """List all Circuit for one or multiple device."""
     aiorun(_list_circuit(devices=devices, branch=branch, rebase=rebase))
 
+
 @app.command()
 def change_circuit_status(circuit: str, status: str):
     """Update the status of a Circuit in a new branch and merge automatically."""
     aiorun(_change_circuit_status(circuit=circuit, status=status))
+
 
 @app.command()
 def change_admin_status(device: str, interface: str):
@@ -1022,10 +1061,13 @@ async def _manage_bgp_session(device: str, branch: str = None, interval: int = 1
         response = await execute_query(
             client,
             QUERY_GET_DEVICE_MANAGEMENT_IP,
-            {"branch": branch, "device": device},
+            branch=branch,
+            variables={"device": device},
         )
 
-    mgmt_ip_address = response["data"]["device"][0]["interfaces"][0]["ip_addresses"][0]["address"]["value"].split("/")[0]
+    mgmt_ip_address = response["data"]["device"][0]["interfaces"][0]["ip_addresses"][0][
+        "address"
+    ]["value"].split("/")[0]
 
     # Add a Loop
     while True:
@@ -1033,19 +1075,24 @@ async def _manage_bgp_session(device: str, branch: str = None, interval: int = 1
             "target": (mgmt_ip_address, ARISTA_PORT),
             "username": ARISTA_USERNAME,
             "password": ARISTA_PASSWORD,
-            "insecure":True
+            "insecure": True,
         }
 
         async with httpx.AsyncClient() as client:
-            infrahub_bgp_config = await get_bgp_neighbor_config(client=client, device=device)
+            infrahub_bgp_config = await get_bgp_neighbor_config(
+                client=client, device=device
+            )
 
         with gNMIclient(**device_conn) as gc:
             response = gc.get(path=[OC_BGP_NEIGHBOR_PATH], encoding="json_ietf")
             device_sessions = response.get("notification")[0].get("update", [])
 
             device_bgp_config = {
-                'openconfig-bgp:neighbors': {
-                'neighbor': [ extract_config_from_device_session(session) for session in device_sessions]
+                "openconfig-bgp:neighbors": {
+                    "neighbor": [
+                        extract_config_from_device_session(session)
+                        for session in device_sessions
+                    ]
                 }
             }
 
@@ -1055,25 +1102,45 @@ async def _manage_bgp_session(device: str, branch: str = None, interval: int = 1
             update = []
             create = []
 
-            for intended_session in infrahub_bgp_config['openconfig-bgp:neighbors']['neighbor']:
+            for intended_session in infrahub_bgp_config["openconfig-bgp:neighbors"][
+                "neighbor"
+            ]:
                 found = False
-                for existing_session in device_bgp_config['openconfig-bgp:neighbors']['neighbor']:
+                for existing_session in device_bgp_config["openconfig-bgp:neighbors"][
+                    "neighbor"
+                ]:
 
-                    if intended_session["neighbor-address"] != existing_session["neighbor-address"]:
+                    if (
+                        intended_session["neighbor-address"]
+                        != existing_session["neighbor-address"]
+                    ):
                         continue
 
-                    if intended_session["neighbor-address"] == existing_session["neighbor-address"]:
+                    if (
+                        intended_session["neighbor-address"]
+                        == existing_session["neighbor-address"]
+                    ):
                         found = True
                     if intended_session["config"] != existing_session["config"]:
 
-                        update = (f"{OC_BGP_NEIGHBOR_PATH}[neighbor-address={intended_session['neighbor-address']}]", {"config": intended_session["config"]} )
+                        update = (
+                            f"{OC_BGP_NEIGHBOR_PATH}[neighbor-address={intended_session['neighbor-address']}]",
+                            {"config": intended_session["config"]},
+                        )
                         result = gc.set(update=[update])
-                        console.log(f"[orange]UPDATED[/] Session '{intended_session['neighbor-address']}'")
+                        console.log(
+                            f"[orange]UPDATED[/] Session '{intended_session['neighbor-address']}'"
+                        )
 
                 if not found:
-                    update=(f"{OC_BGP_NEIGHBOR_PATH}[neighbor-address={intended_session['neighbor-address']}]", {"config": intended_session["config"]} )
+                    update = (
+                        f"{OC_BGP_NEIGHBOR_PATH}[neighbor-address={intended_session['neighbor-address']}]",
+                        {"config": intended_session["config"]},
+                    )
                     result = gc.set(update=[update])
-                    console.log(f"[orange]ADDED[/] Session '{intended_session['neighbor-address']}'")
+                    console.log(
+                        f"[orange]ADDED[/] Session '{intended_session['neighbor-address']}'"
+                    )
 
             if not create and not update:
                 console.log(f"All BGP sessions are already present")
@@ -1100,13 +1167,15 @@ async def _get_bgp_config(device: str, branch: str = None):
             {"branch": branch, "device": device},
         )
 
-    mgmt_ip_address = response["data"]["device"][0]["interfaces"][0]["ip_addresses"][0]["address"]["value"].split("/")[0]
+    mgmt_ip_address = response["data"]["device"][0]["interfaces"][0]["ip_addresses"][0][
+        "address"
+    ]["value"].split("/")[0]
 
     device_conn = {
         "target": (mgmt_ip_address, ARISTA_PORT),
         "username": ARISTA_USERNAME,
         "password": ARISTA_PASSWORD,
-        "insecure":True
+        "insecure": True,
     }
 
     with gNMIclient(**device_conn) as gc:
@@ -1114,14 +1183,16 @@ async def _get_bgp_config(device: str, branch: str = None):
         device_sessions = response.get("notification")[0].get("update", [])
 
         device_bgp_config = {
-            'openconfig-bgp:neighbors': {
-            'neighbor': [ extract_config_from_device_session(session) for session in device_sessions]
+            "openconfig-bgp:neighbors": {
+                "neighbor": [
+                    extract_config_from_device_session(session)
+                    for session in device_sessions
+                ]
             }
         }
 
         rprint(device_sessions)
         rprint(device_bgp_config)
-
 
 
 @app.command()
