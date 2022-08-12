@@ -3,6 +3,7 @@ from collections import defaultdict
 from rich import print as rprint
 from infrahub.checks import InfrahubCheck
 
+
 class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
 
     query = "check_backbone_link_redundancy"
@@ -20,7 +21,10 @@ class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
                 site_name = endpoint["site"]["name"]["value"]
                 site_id_by_name[site_name] = endpoint["site"]["id"]
                 backbone_links_per_site[site_name]["total"] += 1
-                if endpoint["connected_interface"]["enabled"]["value"] and status == "active":
+                if (
+                    endpoint["connected_interface"]["enabled"]["value"]
+                    and status == "active"
+                ):
                     backbone_links_per_site[site_name]["operational"] += 1
 
         for site_name, site in backbone_links_per_site.items():
@@ -31,5 +35,7 @@ class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
                     object_type="site",
                 )
 
-INFRAHUB_CHECKS = [InfrahubCheckBackboneLinkRedundancy]
+        # rprint(backbone_links_per_site)
 
+
+INFRAHUB_CHECKS = [InfrahubCheckBackboneLinkRedundancy]
