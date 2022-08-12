@@ -1,5 +1,5 @@
-query($branch: String!, $device: String!) {
-    device(branch: $branch, name__value: $device) {
+query($device: String!) {
+    device(name__value: $device) {
         id
         name {
             value
@@ -21,29 +21,9 @@ query($branch: String!, $device: String!) {
                 value
             }
             role {
-                slug {
+                name {
                     value
                 }
-            }
-            ip_addresses {
-                address {
-                    value
-                }
-            }
-        }
-        management_interface: interfaces(role__slug: "management") {
-            name {
-                value
-            }
-            ip_addresses {
-                address {
-                    value
-                }
-            }
-        }
-        loopback_interface: interfaces(role__slug: "loopback") {
-            name {
-                value
             }
             ip_addresses {
                 address {

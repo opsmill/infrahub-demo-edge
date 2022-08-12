@@ -22,12 +22,12 @@ management api netconf
    transport ssh default
 !
 {% for intf in data.device[0]["interfaces"] %}
-{%   if intf.role.slug.value != "management" and intf.role.slug.value != "loopback" %}
+{%   if intf.role.name.value != "management" and intf.role.name.value != "loopback" %}
 interface {{intf["name"]["value"]}}
 {%   if intf["description"]["value"] %}
    description {{ intf["description"]["value"] }}
 {%   else %}
-   description role: {{ intf.role.slug.value }}
+   description role: {{ intf.role.name.value }}
 {%   endif %}
 {%   if not intf["enabled"]["value"] %}
    shutdown
@@ -35,13 +35,14 @@ interface {{intf["name"]["value"]}}
 {%   for ip in intf["ip_addresses"] %}
    ip address {{ ip["address"]["value"] }}
    no switchport
-{%   if intf.role.slug.value == "peer" or intf.role.slug.value == "backbone" %}
+{%   if intf.role.name.value == "peer" or intf.role.name.value == "backbone" %}
    ip ospf network point-to-point
 {%   endif %}
 {%   endfor %}
 !
 {%   endif %}
 {% endfor %}
+{#
 {% for intf in data.device[0]["management_interface"] %}
 interface {{intf["name"]["value"]}}
 {%   for ip in intf["ip_addresses"] %}
@@ -53,7 +54,7 @@ interface {{intf["name"]["value"]}}
 interface {{intf["name"]["value"]}}
 {%   for ip in intf["ip_addresses"] %}
    ip address {{ ip["address"]["value"] }}
-{%   endfor %}
+{%   endfor %} #}
 !
 {% endfor %}
 !

@@ -1,5 +1,5 @@
-query($branch: String!) {
-    device(branch: $branch) {
+query {
+    device {
         name {
             value
         }
