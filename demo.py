@@ -55,6 +55,11 @@ QUERY_GET_DEVICE_MANAGEMENT_IP = """
                         value
                     }
                 }
+                role {
+                    name {
+                        value
+                    }
+                }
             }
         }
     }
