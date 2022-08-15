@@ -675,7 +675,7 @@ async def _update_description(
             )
 
 
-async def _list_interface(device: str, branch: str, rebase: bool):
+async def _list_interface(device: str, branch: str, rebase: bool, at: str):
     """List all interfaces for a given device."""
 
     if not branch:
@@ -691,6 +691,7 @@ async def _list_interface(device: str, branch: str, rebase: bool):
             client,
             QUERY_GET_INTERFACE_ALL,
             branch=branch,
+            at=at,
             variables={"device": device},
             rebase=rebase,
         )
@@ -722,7 +723,9 @@ async def _list_interface(device: str, branch: str, rebase: bool):
         console.print(table)
 
 
-async def _list_bgp_session(devices: str, branch: str, rebase: bool, internal: bool):
+async def _list_bgp_session(
+    devices: str, branch: str, rebase: bool, internal: bool, at: str
+):
     """List all BGP Session for a given device."""
 
     if not branch:
@@ -753,6 +756,7 @@ async def _list_bgp_session(devices: str, branch: str, rebase: bool, internal: b
                 client,
                 QUERY_GET_BGP_ALL,
                 branch=branch,
+                at=at,
                 variables={"device": device},
                 rebase=rebase,
             )
@@ -797,7 +801,7 @@ async def _list_bgp_session(devices: str, branch: str, rebase: bool, internal: b
     console.print(table)
 
 
-async def _list_circuit(devices: str, branch: str, rebase: bool):
+async def _list_circuit(devices: str, branch: str, rebase: bool, at: str):
     """List all Circuit for a given device."""
 
     if not branch:
@@ -826,6 +830,7 @@ async def _list_circuit(devices: str, branch: str, rebase: bool):
                 client,
                 QUERY_GET_DEVICE_CIRCUIT,
                 branch=branch,
+                at=at,
                 variables={"device": device},
                 rebase=rebase,
             )
@@ -958,27 +963,35 @@ async def _generate_startup_config(branch: str):
 
 
 @app.command()
-def list_interface(device: str, branch: str = None, rebase: bool = False):
+def list_interface(
+    device: str, branch: str = None, rebase: bool = False, at: str = None
+):
     """List all interfaces for a given device."""
-    aiorun(_list_interface(device=device, branch=branch, rebase=rebase))
+    aiorun(_list_interface(device=device, branch=branch, rebase=rebase, at=at))
 
 
 @app.command()
 def list_bgp_session(
-    devices: str, branch: str = None, rebase: bool = False, internal: bool = True
+    devices: str,
+    branch: str = None,
+    rebase: bool = False,
+    internal: bool = True,
+    at: str = None,
 ):
     """List all BGP Session for one or multiple device."""
     aiorun(
         _list_bgp_session(
-            devices=devices, branch=branch, rebase=rebase, internal=internal
+            devices=devices, branch=branch, rebase=rebase, internal=internal, at=at
         )
     )
 
 
 @app.command()
-def list_circuit(devices: str, branch: str = None, rebase: bool = False):
+def list_circuit(
+    devices: str, branch: str = None, rebase: bool = False, at: str = None
+):
     """List all Circuit for one or multiple device."""
-    aiorun(_list_circuit(devices=devices, branch=branch, rebase=rebase))
+    aiorun(_list_circuit(devices=devices, branch=branch, rebase=rebase, at=at))
 
 
 @app.command()
@@ -1213,8 +1226,8 @@ def manage_bgp_session(device: str, branch: str = None):
 
 
 @app.command()
-def get_bgp_config(device: str, branch: str = None):
-    aiorun(_get_bgp_config(device=device, branch=branch))
+def get_bgp_config(device: str, branch: str = None, at: str = None):
+    aiorun(_get_bgp_config(device=device, branch=branch, at=at))
 
 
 if __name__ == "__main__":
