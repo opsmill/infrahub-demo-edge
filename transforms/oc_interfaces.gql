@@ -1,0 +1,21 @@
+query($device: String!) {
+    device(name__value: $device) {
+        id
+        interfaces {
+            name {
+                value
+            }
+            description {
+                value
+            }
+            enabled {
+                value
+            }
+            ip_addresses {
+                address {
+                    value
+                }
+            }
+        }
+    }
+}

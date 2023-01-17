@@ -1,0 +1,33 @@
+query($device: String!) {
+  bgp_session(device__name__value: $device) {
+    id
+    peer_group {
+      name {
+        value
+      }
+    }
+    local_ip {
+      address {
+        value
+      }
+    }
+    remote_ip {
+      address {
+        value
+      }
+    }
+    local_as {
+      asn {
+        value
+      }
+    }
+    remote_as {
+      asn {
+        value
+      }
+    }
+    description {
+      value
+    }
+  }
+}
