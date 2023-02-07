@@ -71,6 +71,8 @@ interface {{ ns.loopback_intf_name }}
 !
 ip prefix-list BOGON-Prefixes seq 10 permit 172.16.0.0/12 le 24
 ip prefix-list BOGON-Prefixes seq 20 permit 192.168.0.0/16 le 24
+ip prefix-list BOGON-Prefixes seq 20 permit 192.168.0.0/16 le 24
+ip prefix-list BOGON-Prefixes seq 20 permit 192.168.0.0/16 le 24
 !
 ip routing
 !
