@@ -20,24 +20,24 @@ class OCInterfaces(InfrahubTransform):
                 "config": {"enabled": intf["enabled"]["value"]},
             }
 
-            if intf["description"] and intf["description"]["value"]:
+            if intf.get("description", None) and intf["description"]["value"]:
                 intf_config["config"]["description"] = intf["description"]["value"]
 
-            if intf["ip_addresses"]:
+            if intf.get("ip_addresses", None):
                 intf_config["subinterfaces"] = {"subinterface": []}
 
-            for idx, ip in enumerate(intf["ip_addresses"]):
+                for idx, ip in enumerate(intf["ip_addresses"]):
 
-                address, mask = ip["address"]["value"].split("/")
-                intf_config["subinterfaces"]["subinterface"].append(
-                    {
-                        "index": idx,
-                        "openconfig-if-ip:ipv4": {
-                            "addresses": {"address": [{"ip": address, "config": {"ip": address, "prefix-length": mask}}]},
-                            "config": {"enabled": True},
-                        },
-                    }
-                )
+                    address, mask = ip["address"]["value"].split("/")
+                    intf_config["subinterfaces"]["subinterface"].append(
+                        {
+                            "index": idx,
+                            "openconfig-if-ip:ipv4": {
+                                "addresses": {"address": [{"ip": address, "config": {"ip": address, "prefix-length": mask}}]},
+                                "config": {"enabled": True},
+                            },
+                        }
+                    )
 
             response_payload["openconfig-interfaces:interface"].append(intf_config)
 
