@@ -1,12 +1,12 @@
 ---
 rfiles:
-  device_startup:
+  - name: device_startup
     description: "Template to generate startup configuration for network devices"
     query: "device_startup_info"
     template_repository: "self"
-    template_path: "device_startup_config.tpl.j2"
+    template_path: "templates/device_startup_config.tpl.j2"
 
-  clab_topology:
+  - name: clab_topology
     query: "topology_info"
     template_repository: "self"
-    template_path: "topology.tpl.j2"
+    template_path: "topology/topology.tpl.j2"

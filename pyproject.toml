@@ -7,7 +7,7 @@ authors = ["Damien Garros <dgarros@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 infrahub = {path = "../infrahub", develop=true}
-typer = "^0.4.1"
+typer = "^0.7"
 black = "^22.3.0"
 pygnmi = "^0.6.9"
 
