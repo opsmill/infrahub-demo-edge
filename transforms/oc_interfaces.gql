@@ -1,4 +1,4 @@
-query($device: String!) {
+query oc_interfaces ($device: String!) {
   device(name__value: $device) {
     edges {
       node {

@@ -1,4 +1,4 @@
-query($device: String!) {
+query oc_bgp_neighbors ($device: String!) {
   bgp_session(device__name__value: $device) {
     edges {
       node {
