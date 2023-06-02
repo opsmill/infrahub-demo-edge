@@ -11,13 +11,17 @@ topology:
       kind: ceos
       image: ceos:4.27.3F
   nodes:
-{% for device in data.device %}
-    {{ device.name.value }}:
+{% for device in data.device.edges %}
+    {{ device.node.name.value }}:
       kind: ceos
       type: ixrd2
-{% set management_ip = device.interfaces[0].ip_addresses[0].address.value.split('/') %}
+{%  for intf in device.node.interfaces.edges %}
+{%    if intf.node.role.node.name.value == "management" %}
+{%      set management_ip = intf.node.ip_addresses.edges[0].node.address.value.split('/') %}
       mgmt_ipv4: {{ management_ip[0] }}
-      startup-config: configs/startup/{{ device.name.value }}.cfg
+{%    endif %}
+{%  endfor %}
+      startup-config: configs/startup/{{ device.node.name.value }}.cfg
 {% endfor %}
   links:
     - endpoints: ["atl1-edge1:eth1", "atl1-edge2:eth1"]
