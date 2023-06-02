@@ -5,6 +5,8 @@ import os
 import ujson
 from pathlib import Path
 
+from infrahub_client import InfrahubClientSync
+
 
 class TestHelper:
     """TestHelper profiles functions that can be used as a fixture throughout the test framework"""
@@ -41,7 +43,16 @@ class TestHelper:
 
         return os.path.abspath(fixtures_dir)
 
+@pytest.fixture()
+def root_directory() -> str:
+    here = os.path.abspath(os.path.dirname(__file__))
+    root_dir = os.path.join(here, "../")
+    return os.path.abspath(root_dir)
 
 @pytest.fixture()
 def helper() -> TestHelper:
     return TestHelper()
+
+@pytest.fixture()
+def client_sync() -> InfrahubClientSync:
+    return InfrahubClientSync.init(address="http://localhost:8000", insert_tracker=True, pagination=True)
