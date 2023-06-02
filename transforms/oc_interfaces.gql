@@ -1,20 +1,32 @@
 query($device: String!) {
   device(name__value: $device) {
-    id
-    interfaces {
-      name {
-        value
-      }
-      description {
-        value
-      }
-      enabled {
-        value
-      }
-      ... on RelatedInterfaceL3 {
-        ip_addresses {
-          address {
-            value
+    edges {
+      node {
+        id
+        interfaces {
+          edges {
+            node {
+              name {
+                value
+              }
+              description {
+                value
+              }
+              enabled {
+                value
+              }
+              ... on InterfaceL3 {
+                ip_addresses {
+                  edges {
+                    node {
+                      address {
+                        value
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
