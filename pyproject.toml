@@ -10,6 +10,7 @@ infrahub = {path = "../infrahub", develop=true}
 typer = "^0.7"
 
 pygnmi = "^0.6.9"
+invoke = "^2.1.2"
 
 [tool.poetry.dev-dependencies]
 
