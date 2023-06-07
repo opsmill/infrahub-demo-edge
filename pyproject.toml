@@ -5,13 +5,24 @@ description = ""
 authors = ["Damien Garros <dgarros@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.9, < 3.12"
 infrahub = {path = "../infrahub", develop=true}
 typer = "^0.7"
-black = "^22.3.0"
+
 pygnmi = "^0.6.9"
 
 [tool.poetry.dev-dependencies]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.3.1"
+black = "^22.3.0"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = [
+    "tests"
+]
+pythonpath = ["."]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

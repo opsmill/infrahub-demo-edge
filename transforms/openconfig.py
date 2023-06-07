@@ -1,4 +1,3 @@
-
 from infrahub.transforms import InfrahubTransform
 
 
@@ -11,29 +10,44 @@ class OCInterfaces(InfrahubTransform):
         response_payload = {}
         response_payload["openconfig-interfaces:interface"] = []
 
-        for intf in data.get("device")[0].get("interfaces"):
+        for intf in data["device"]["edges"][0]["node"]["interfaces"]["edges"]:
 
-            intf_name = intf["name"]["value"]
+            intf_name = intf["node"]["name"]["value"]
 
             intf_config = {
                 "name": intf_name,
-                "config": {"enabled": intf["enabled"]["value"]},
+                "config": {"enabled": intf["node"]["enabled"]["value"]},
             }
 
-            if intf.get("description", None) and intf["description"]["value"]:
-                intf_config["config"]["description"] = intf["description"]["value"]
+            if (
+                intf["node"].get("description", None)
+                and intf["node"]["description"]["value"]
+            ):
+                intf_config["config"]["description"] = intf["node"]["description"][
+                    "value"
+                ]
 
-            if intf.get("ip_addresses", None):
+            if intf["node"].get("ip_addresses", None):
                 intf_config["subinterfaces"] = {"subinterface": []}
 
-                for idx, ip in enumerate(intf["ip_addresses"]):
+                for idx, ip in enumerate(intf["node"]["ip_addresses"]["edges"]):
 
-                    address, mask = ip["address"]["value"].split("/")
+                    address, mask = ip["node"]["address"]["value"].split("/")
                     intf_config["subinterfaces"]["subinterface"].append(
                         {
                             "index": idx,
                             "openconfig-if-ip:ipv4": {
-                                "addresses": {"address": [{"ip": address, "config": {"ip": address, "prefix-length": mask}}]},
+                                "addresses": {
+                                    "address": [
+                                        {
+                                            "ip": address,
+                                            "config": {
+                                                "ip": address,
+                                                "prefix-length": mask,
+                                            },
+                                        }
+                                    ]
+                                },
                                 "config": {"enabled": True},
                             },
                         }
@@ -43,10 +57,13 @@ class OCInterfaces(InfrahubTransform):
 
         return response_payload
 
+
 class OCBGPNeighbors(InfrahubTransform):
 
     query = "oc_bgp_neighbors"
-    url = "openconfig/network-instances/network-instance/protocols/protocol/bgp/neighbors"
+    url = (
+        "openconfig/network-instances/network-instance/protocols/protocol/bgp/neighbors"
+    )
 
     async def transform(self, data):
 
@@ -54,22 +71,36 @@ class OCBGPNeighbors(InfrahubTransform):
 
         response_payload["openconfig-bgp:neighbors"] = {"neighbor": []}
 
-        for session in data.get("bgp_session"):
+        for session in data["bgp_session"]["edges"]:
 
-            neighbor_address = session["remote_ip"]["address"]["value"].split("/")[0]
-            session_data = {"neighbor-address": neighbor_address, "config": {"neighbor-address": neighbor_address}}
+            neighbor_address = session["node"]["remote_ip"]["node"]["address"][
+                "value"
+            ].split("/")[0]
+            session_data = {
+                "neighbor-address": neighbor_address,
+                "config": {"neighbor-address": neighbor_address},
+            }
 
-            if session["peer_group"]:
-                session_data["config"]["peer-group"] = session["peer_group"]["name"]["value"]
+            if session["node"]["peer_group"]:
+                session_data["config"]["peer-group"] = session["node"]["peer_group"][
+                    "node"
+                ]["name"]["value"]
 
-            if session["remote_as"]:
-                session_data["config"]["peer-as"] = session["remote_as"]["asn"]["value"]
+            if session["node"]["remote_as"]:
+                session_data["config"]["peer-as"] = session["node"]["remote_as"][
+                    "node"
+                ]["asn"]["value"]
 
-            if session["local_as"]:
-                session_data["config"]["local-as"] = session["local_as"]["asn"]["value"]
+            if session["node"]["local_as"]:
+                session_data["config"]["local-as"] = session["node"]["local_as"][
+                    "node"
+                ]["asn"]["value"]
 
-            response_payload["openconfig-bgp:neighbors"]["neighbor"].append(session_data)
+            response_payload["openconfig-bgp:neighbors"]["neighbor"].append(
+                session_data
+            )
 
         return response_payload
+
 
 INFRAHUB_TRANSFORMS = [OCInterfaces, OCBGPNeighbors]

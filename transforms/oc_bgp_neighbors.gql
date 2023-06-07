@@ -1,33 +1,47 @@
-query($device: String!) {
+query oc_bgp_neighbors ($device: String!) {
   bgp_session(device__name__value: $device) {
-    id
-    peer_group {
-      name {
-        value
+    edges {
+      node {
+        id
+        peer_group {
+          node {
+            name {
+              value
+            }
+          }
+        }
+        local_ip {
+          node {
+            address {
+              value
+            }
+          }
+        }
+        remote_ip {
+          node {
+            address {
+              value
+            }
+          }
+        }
+        local_as {
+          node {
+            asn {
+              value
+            }
+          }
+        }
+        remote_as {
+          node { 
+            asn {
+              value
+            }
+          }
+        }
+        description {
+          value
+        }
       }
-    }
-    local_ip {
-      address {
-        value
-      }
-    }
-    remote_ip {
-      address {
-        value
-      }
-    }
-    local_as {
-      asn {
-        value
-      }
-    }
-    remote_as {
-      asn {
-        value
-      }
-    }
-    description {
-      value
     }
   }
 }

@@ -1,51 +1,76 @@
 query($device: String!) {
   device(name__value: $device) {
-    id
-    name {
-      value
-    }
-    asn {
-      asn {
-        value
-      }
-    }
-    interfaces {
-      id
-      name {
-        value
-      }
-      description {
-        value
-      }
-      enabled {
-        value
-      }
-      role {
+    edges {
+      node {
+        id
         name {
           value
         }
-      }
-      ... on RelatedInterfaceL3 {
-        ip_addresses {
-          address {
-            value
+        asn {
+          node {
+            asn {
+              value
+            }
           }
         }
+        interfaces {
+          edges {
+            node {
+              id
+              name {
+                value
+              }
+              description {
+                value
+              }
+              enabled {
+                value
+              }
+              role {
+                node {
+                  name {
+                    value
+                  }
+                }
+              }
+              ... on InterfaceL3 {
+                ip_addresses {
+                  edges {
+                    node {
+                      address {
+                        value
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
       }
     }
   }
   bgp_peer_group {
-    name {
-      value
-    }
-    local_as {
-      asn {
-        value
-      }
-    }
-    remote_as {
-      asn {
-        value
+    edges {
+      node {
+        name {
+          value
+        }
+        local_as {
+          node {
+            asn {
+              value
+            }
+          }
+        }
+        remote_as {
+          node {
+            asn {
+              value
+            }
+          }
+        }
       }
     }
   }

@@ -1,29 +1,45 @@
-query {
-    circuit(role__name__value: "backbone") {
+query check_backbone_link_redundancy {
+  circuit(role__name__value: "backbone") {
+    edges {
+      node {
         id
         circuit_id {
-            value
+          value
         }
         vendor_id {
-            value
+          value
         }
         status {
+          node {
             name {
-                value
+              value
             }
+          }
         }
         endpoints {
-            site {
-                id
-                name {
+          edges {
+            node {
+              site {
+                node {
+                  id
+                  name {
                     value
+                  }
                 }
-            }
-            connected_interface {
-                enabled {
-                    value
+              }
+              connected_endpoint {
+                node {
+                  ... on Interface {
+                    enabled {
+                      value
+                    }
+                  }
                 }
+              }
             }
+          }
         }
+      }
     }
+  }
 }

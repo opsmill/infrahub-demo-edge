@@ -1,15 +1,36 @@
 query {
-    device {
+  device {
+    edges {
+      node {
         name {
-            value
+          value
         }
-        interfaces(role__slug: "management") {
-            id
-            ip_addresses {
-                address {
+        interfaces {
+          edges {
+            node {
+              id
+              role {
+                node {
+                  name {
                     value
+                  }
                 }
+              }
+              ... on InterfaceL3 {
+                ip_addresses {
+                  edges {
+                    node {
+                      address {
+                        value
+                      }
+                    }
+                  }
+                }
+              }
             }
+          }
         }
+      }
     }
+  }
 }
