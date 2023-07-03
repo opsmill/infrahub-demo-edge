@@ -55,4 +55,4 @@ def helper() -> TestHelper:
 
 @pytest.fixture()
 def client_sync() -> InfrahubClientSync:
-    return InfrahubClientSync.init(address="http://localhost:8000", insert_tracker=True, pagination=True)
+    return InfrahubClientSync.init(address="http://localhost:8000", insert_tracker=True)

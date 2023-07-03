@@ -1,5 +1,5 @@
 query check_backbone_link_redundancy {
-  circuit(role__name__value: "backbone") {
+  InfraCircuit(role__name__value: "backbone") {
     edges {
       node {
         id
@@ -29,7 +29,7 @@ query check_backbone_link_redundancy {
               }
               connected_endpoint {
                 node {
-                  ... on Interface {
+                  ... on InfraInterface {
                     enabled {
                       value
                     }
