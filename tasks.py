@@ -19,12 +19,12 @@ def git_info(context: Context) -> Tuple[str, str]:
 @task
 def generate_archive(context: Context):
     branch, commit = git_info(context=context)
-
+    directory_name = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
     package_name = f"{PROJECT_NAME}-{commit[:8]}.tar.gz"
 
     commands = [
         f"rm -rf /tmp/{PROJECT_NAME}",
-        f"cp -a ../{PROJECT_NAME} /tmp/{PROJECT_NAME}",
+        f"cp -a ../{directory_name} /tmp/{PROJECT_NAME}",
         f"git --git-dir /tmp/{PROJECT_NAME}/.git remote remove origin",
         f"tar -C /tmp -czf {package_name} {PROJECT_NAME}",
     ]
