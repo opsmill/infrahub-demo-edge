@@ -8,7 +8,7 @@ from typing import Tuple
 
 from invoke import task, Context  # type: ignore
 
-PROJECT_NAME = "infrahub-demo-edge-develop"
+PROJECT_NAME = "infrahub-demo-edge"
 
 def git_info(context: Context) -> Tuple[str, str]:
     """Return the name of the current branch and hash of the current commit."""
