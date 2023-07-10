@@ -1,5 +1,5 @@
 query oc_bgp_neighbors ($device: String!) {
-  bgp_session(device__name__value: $device) {
+  InfraBGPSession(device__name__value: $device) {
     edges {
       node {
         id
@@ -32,7 +32,7 @@ query oc_bgp_neighbors ($device: String!) {
           }
         }
         remote_as {
-          node { 
+          node {
             asn {
               value
             }

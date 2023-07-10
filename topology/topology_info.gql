@@ -1,5 +1,5 @@
 query {
-  device {
+  InfraDevice {
     edges {
       node {
         name {
@@ -16,7 +16,7 @@ query {
                   }
                 }
               }
-              ... on InterfaceL3 {
+              ... on InfraInterfaceL3 {
                 ip_addresses {
                   edges {
                     node {

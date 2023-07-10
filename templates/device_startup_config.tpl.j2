@@ -1,5 +1,5 @@
 {% set ns = namespace(loopback_intf_name=none, loopback_ip=none, management_intf_name=none, management_ip=none) %}
-{% for intf in data.device.edges[0].node.interfaces.edges %}
+{% for intf in data.InfraDevice.edges[0].node.interfaces.edges %}
 {%   if intf.node.role.node.name.value == "loopback" %}
 {%     set ns.loopback_intf_name = intf.node.name.value %}
 {%     set ns.loopback_ip = intf.node.ip_addresses.edges[0].node.address.value.split('/')[0] %}
@@ -16,7 +16,7 @@ transceiver qsfp default-mode 4x10G
 !
 service routing protocols model multi-agent
 !
-hostname {{ data.device.edges[0].node.name.value }}
+hostname {{ data.InfraDevice.edges[0].node.name.value }}
 !
 spanning-tree mode mstp
 !
@@ -29,7 +29,7 @@ management api gnmi
 management api netconf
    transport ssh default
 !
-{% for intf in data.device.edges[0].node.interfaces.edges %}
+{% for intf in data.InfraDevice.edges[0].node.interfaces.edges %}
 {%   if intf.node.name.value != ns.management_intf_name and intf.node.name.value != ns.loopback_intf_name %}
 interface {{ intf.node.name.value }} 
 {%   if intf.node["description"]["value"] %}
@@ -55,7 +55,7 @@ interface {{ intf.node.name.value }}
 {% endfor %}
 !
 interface {{ ns.management_intf_name }}
-{% for intf in data.device.edges[0]["interfaces"] %}
+{% for intf in data.InfraDevice.edges[0]["interfaces"] %}
 {%   if intf.node.name.value == ns.management_intf_name %}
 {%     for ip in intf["ip_addresses"] %}
    ip address {{ ip["address"]["value"] }}
@@ -64,7 +64,7 @@ interface {{ ns.management_intf_name }}
 {% endfor %}
 !
 interface {{ ns.loopback_intf_name }}
-{% for intf in data.device.edges[0]["interfaces"] %}
+{% for intf in data.InfraDevice.edges[0]["interfaces"] %}
 {%   if intf.node.name.value == ns.loopback_intf_name %}
 {%     for ip in intf["ip_addresses"] %}
    ip address {{ ip["address"]["value"] }}
@@ -81,10 +81,10 @@ ip routing
 !
 ip route 0.0.0.0/0 172.20.20.1
 !
-{% if data.device.edges[0].node.asn %}
-router bgp {{ data.device.edges[0].node.asn.node.asn.value }}
+{% if data.InfraDevice.edges[0].node.asn %}
+router bgp {{ data.InfraDevice.edges[0].node.asn.node.asn.value }}
    router-id {{ loopback_ip }}
-{%   for peer_group in data.bgp_peer_group.edges %}
+{%   for peer_group in data.InfraBGPPeerGroup.edges %}
    neighbor {{ peer_group.node.name.value }} peer group
 {%     if peer_group.node.local_as %}
    neighbor {{ peer_group.node.name.value }} local-as {{ peer_group.node.local_as.node.asn.value }}

@@ -1,5 +1,5 @@
 query($device: String!) {
-  device(name__value: $device) {
+  InfraDevice(name__value: $device) {
     edges {
       node {
         id
@@ -33,7 +33,7 @@ query($device: String!) {
                   }
                 }
               }
-              ... on InterfaceL3 {
+              ... on InfraInterfaceL3 {
                 ip_addresses {
                   edges {
                     node {
@@ -51,7 +51,7 @@ query($device: String!) {
       }
     }
   }
-  bgp_peer_group {
+  InfraBGPPeerGroup {
     edges {
       node {
         name {
