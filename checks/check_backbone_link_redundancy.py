@@ -14,28 +14,39 @@ class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
 
         backbone_links_per_site = defaultdict(lambda: defaultdict(int))
 
-        for circuit in self.data["data"]["circuit"]:
-            status = circuit["status"]["name"]["value"]
+        if self.data["data"]["InfraCircuit"]["edges"]:
+            circuits =  self.data["data"]["InfraCircuit"]["edges"]
 
-            for endpoint in circuit["endpoints"]:
-                site_name = endpoint["site"]["name"]["value"]
-                site_id_by_name[site_name] = endpoint["site"]["id"]
-                backbone_links_per_site[site_name]["total"] += 1
-                if (
-                    endpoint["connected_interface"]["enabled"]["value"]
-                    and status == "active"
-                ):
-                    backbone_links_per_site[site_name]["operational"] += 1
+            for circuit in circuits:
+                circuit_node = circuit["node"]
+                circuit_status = circuit_node["status"]["node"]["name"]["value"]
 
-        for site_name, site in backbone_links_per_site.items():
-            if site.get("operational", 0) / site["total"] < 0.6:
-                self.log_error(
-                    message=f"{site_name} has less than 60% of backbone circuit operational ({site.get('operational', 0)}/{site['total']})",
-                    object_id=site_id_by_name[site_name],
-                    object_type="site",
-                )
+                if circuit_node["endpoints"]["edges"]:
+                    endpoints =  circuit_node["endpoints"]["edges"]
 
-        # rprint(backbone_links_per_site)
+                    for endpoint in endpoints:
+                        endpoint_node = endpoint["node"]
+                        site_name = endpoint_node["site"]["node"]["name"]["value"]
+
+                        site_node = endpoint_node["site"]["node"]
+                        site_id_by_name[site_name] = site_node["id"]
+                        backbone_links_per_site[site_name]["total"] += 1
+
+                        if  endpoint_node["connected_endpoint"]:
+                            connected_endpoint_node = endpoint_node["connected_endpoint"]["node"]
+                            if connected_endpoint_node:
+                                if (connected_endpoint_node["enabled"]["value"] and circuit_status == "active"):
+                                    backbone_links_per_site[site_name]["operational"] += 1
+
+            for site_name, site in backbone_links_per_site.items():
+                if site.get("operational", 0) / site["total"] < 0.6:
+                    self.log_error(
+                        message=f"{site_name} has less than 60% of backbone circuit operational ({site.get('operational', 0)}/{site['total']})",
+                        object_id=site_id_by_name[site_name],
+                        object_type="site",
+                    )
+
+            # rprint(backbone_links_per_site)
 
 
 INFRAHUB_CHECKS = [InfrahubCheckBackboneLinkRedundancy]
