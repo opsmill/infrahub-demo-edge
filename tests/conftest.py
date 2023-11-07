@@ -5,7 +5,7 @@ import os
 import ujson
 from pathlib import Path
 
-from infrahub_client import InfrahubClientSync
+from infrahub_sdk import InfrahubClientSync
 
 
 class TestHelper:
