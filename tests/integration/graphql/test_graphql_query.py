@@ -1,6 +1,6 @@
 
 import pytest
-from infrahub_client import InfrahubClientSync
+from infrahub_sdk import InfrahubClientSync
 from infrahub_ctl.utils import find_graphql_query
 
 @pytest.mark.parametrize(
