@@ -18,7 +18,7 @@ class AristaBGP(InfrahubTransform):
                     "distance bgp 20 200 220"
                 ],
                 'peer_groups': {},
-                'neighbors': {}
+                'neighbors': []
             }
         }
 
@@ -46,7 +46,8 @@ class AristaBGP(InfrahubTransform):
             
             # Add to neighbors
             neighbor_ip = node['remote_ip']['node']['address']['value']
-            avd_bgp_config['router_bgp']['neighbors'][neighbor_ip] = {
+            avd_bgp_config['router_bgp']['neighbors'] += {
+                'ip_address': neighbor_ip,
                 'peer_group': peer_group_name,
                 'remote_as': remote_as,
                 'description': node['description']['value'],
