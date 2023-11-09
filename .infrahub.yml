@@ -34,7 +34,7 @@ artifact_definitions:
     transformation: "device_startup"
 
   - name: "BGP variables for Arista AVD"
-    artifact_name: "avd-bgp-json"
+    artifact_name: "avdbgp"
     parameters:
       device: "name__value"
     content_type: "application/json"
