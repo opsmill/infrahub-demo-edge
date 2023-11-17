@@ -58,11 +58,30 @@ query($device: String!) {
       }
     }
   }
-  InfraBGPPeerGroup {
+  InfraBGPSession(device__name__value: $device) {
     edges {
       node {
-        name {
-          value
+        id
+        peer_group {
+          node {
+            name {
+              value
+            }
+          }
+        }
+        local_ip {
+          node {
+            address {
+              value
+            }
+          }
+        }
+        remote_ip {
+          node {
+            address {
+              value
+            }
+          }
         }
         local_as {
           node {
@@ -77,6 +96,9 @@ query($device: String!) {
               value
             }
           }
+        }
+        description {
+          value
         }
       }
     }
