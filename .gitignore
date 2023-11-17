@@ -2,3 +2,5 @@
 *.pyc
 *.tar.gz
 .DS_Store
+playbooks/documentation
+playbooks/intended

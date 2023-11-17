@@ -43,6 +43,8 @@ class AristaConfig(InfrahubTransform):
                 'name': peer_group_name,
                 'description': node['description']['value'],
             })
+        
+        avd_bgp_config['router_bgp']['peer_groups'] = list(set(avd_bgp_config['router_bgp']['peer_groups']))
 
         return avd_bgp_config
 
@@ -63,9 +65,12 @@ class AristaConfig(InfrahubTransform):
 
             # Handling IP addresses
             ip_addresses = [ip['node']['address']['value'] for ip in int_data.get('ip_addresses', {}).get('edges', [])]
+
             if ip_addresses:
                 avd_interface['ip_address'] = ip_addresses[0]  # Assuming the first IP is the primary
-
+                avd_interface['type'] = 'routed'
+            else:
+                avd_interface['type'] = 'switched'
             # Add the interface to the AVD interfaces dictionary
             avd_interfaces.append(avd_interface)
 
