@@ -19,7 +19,7 @@ class AristaConfig(InfrahubTransform):
             'router_bgp': {
                 'as': None,
                 'router_id': None,
-                'peer_groups': [],
+                'peer_groups': {},
             }
         }
 
@@ -37,14 +37,14 @@ class AristaConfig(InfrahubTransform):
             peer_group_name = node['peer_group']['node']['name']['value']
             remote_as = node['remote_as']['node']['asn']['value']
 
-            avd_bgp_config['router_bgp']['peer_groups'].append({
+            avd_bgp_config['router_bgp']['peer_groups'][peer_group_name] = {
                 'type': 'ipv4',  # Assuming all peers are ipv4, adjust if necessary
                 'remote_as': remote_as,
                 'name': peer_group_name,
                 'description': node['description']['value'],
-            })
+            }
         
-        avd_bgp_config['router_bgp']['peer_groups'] = list(set(avd_bgp_config['router_bgp']['peer_groups']))
+        avd_bgp_config['router_bgp']['peer_groups'] = [x for x in avd_bgp_config['router_bgp']['peer_groups'].values()]
 
         return avd_bgp_config
 
