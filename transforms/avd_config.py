@@ -3,8 +3,8 @@ from infrahub.transforms import InfrahubTransform
 
 class AristaConfig(InfrahubTransform):
 
-    query = "avd_bgp"
-    url = "avd/bgp"
+    query = "startup_device_info"
+    url = "avd/config"
 
     async def transform(self, data):
         bgp_data = self._transform_bgp(data)
