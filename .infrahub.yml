@@ -40,3 +40,11 @@ artifact_definitions:
     content_type: "application/json"
     targets: "arista_devices"
     transformation: "AristaBGP"
+
+  - name: "Config variables for Arista AVD"
+    artifact_name: "avd_config"
+    parameters:
+      device: "name__value"
+    content_type: "application/json"
+    targets: "arista_devices"
+    transformation: "AristaConfig"
