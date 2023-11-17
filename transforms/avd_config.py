@@ -3,7 +3,7 @@ from infrahub.transforms import InfrahubTransform
 
 class AristaConfig(InfrahubTransform):
 
-    query = "startup_device_info"
+    query = "device_startup_info"
     url = "avd/config"
 
     async def transform(self, data):
