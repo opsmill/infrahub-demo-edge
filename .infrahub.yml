@@ -1,17 +1,17 @@
 ---
 rfiles:
-  - name: device_startup
+  - name: "device_startup"
     description: "Template to generate startup configuration for network devices"
     query: "device_startup_info"
     repository: "self"
     template_path: "templates/device_startup_config.tpl.j2"
 
-  - name: clab_topology
+  - name: "clab_topology"
     query: "topology_info"
     repository: "self"
     template_path: "topology/topology.tpl.j2"
 
-  - name: arista_avd_bgp_yaml
+  - name: "arista_avd_bgp_yaml"
     query: "avd_bgp"
     repository: "self"
     template_path: "templates/arista_avd_bgp.yaml.j2"
@@ -48,3 +48,10 @@ artifact_definitions:
     content_type: "application/json"
     targets: "arista_devices"
     transformation: "AristaConfig"
+
+check_definitions:
+  - file_path: "checks/check_backbone_link_redundancy.py"
+
+python_transforms:
+  - file_path: "transforms/openconfig.py"
+
