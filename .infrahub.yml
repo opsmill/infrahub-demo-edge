@@ -54,4 +54,6 @@ check_definitions:
 
 python_transforms:
   - file_path: "transforms/openconfig.py"
+  - file_path: "transforms/avdbgp.py"
+  - file_path: "transforms/avd_config.py"
 

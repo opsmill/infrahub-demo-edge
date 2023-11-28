@@ -75,3 +75,5 @@ class AristaConfig(InfrahubTransform):
             avd_interfaces.append(avd_interface)
 
         return {"ethernet_interfaces": avd_interfaces}
+
+INFRAHUB_TRANSFORMS=[AristaConfig]

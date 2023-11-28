@@ -101,3 +101,5 @@ class OCBGPNeighbors(InfrahubTransform):
             )
 
         return response_payload
+
+INFRAHUB_TRANSFORMS = [OCInterfaces, OCBGPNeighbors]
