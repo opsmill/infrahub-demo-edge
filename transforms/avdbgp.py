@@ -54,3 +54,5 @@ class AristaBGP(InfrahubTransform):
             }]
 
         return avd_bgp_config
+
+INFRAHUB_TRANSFORMS=[AristaBGP]
