@@ -1,6 +1,5 @@
 from collections import defaultdict
 
-from rich import print as rprint
 from infrahub.checks import InfrahubCheck
 
 
@@ -46,7 +45,3 @@ class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
                         object_type="site",
                     )
 
-            # rprint(backbone_links_per_site)
-
-
-INFRAHUB_CHECKS = [InfrahubCheckBackboneLinkRedundancy]

@@ -47,10 +47,21 @@ artifact_definitions:
     transformation: "AristaConfig"
 
 check_definitions:
-  - file_path: "checks/check_backbone_link_redundancy.py"
+  - name: backbone_link_redundancy
+    class_name: InfrahubCheckBackboneLinkRedundancy
+    file_path: "checks/check_backbone_link_redundancy.py"
 
 python_transforms:
-  - file_path: "transforms/openconfig.py"
-  - file_path: "transforms/avdbgp.py"
-  - file_path: "transforms/avd_config.py"
+  - name: OCInterfaces
+    class_name: OCInterfaces
+    file_path: "transforms/openconfig.py"
+  - name: oc_bgp_neighbors
+    class_name: OCBGPNeighbors
+    file_path: "transforms/openconfig.py"
+  - name: AristaBGP
+    class_name: AristaBGP
+    file_path: "transforms/avdbgp.py"
+  - name: AristaConfig
+    class_name: AristaConfig
+    file_path: "transforms/avd_config.py"
 
