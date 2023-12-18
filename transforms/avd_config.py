@@ -9,7 +9,7 @@ class AristaConfig(InfrahubTransform):
     async def transform(self, data):
         bgp_data = self._transform_bgp(data)
         interface_data = self._transform_interfaces(data['InfraDevice']['edges'][0]["node"]["interfaces"]["edges"])
-        
+
         return {**bgp_data, **interface_data}
 
     @staticmethod
@@ -43,7 +43,7 @@ class AristaConfig(InfrahubTransform):
                 'name': peer_group_name,
                 'description': node['description']['value'],
             }
-        
+
         avd_bgp_config['router_bgp']['peer_groups'] = [x for x in avd_bgp_config['router_bgp']['peer_groups'].values()]
 
         return avd_bgp_config
@@ -75,5 +75,3 @@ class AristaConfig(InfrahubTransform):
             avd_interfaces.append(avd_interface)
 
         return {"ethernet_interfaces": avd_interfaces}
-
-INFRAHUB_TRANSFORMS=[AristaConfig]
