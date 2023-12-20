@@ -1,4 +1,4 @@
-query device_startup_info ($device: String!) {
+query avd_config ($device: String!) {
   InfraDevice(name__value: $device) {
     edges {
       node {
@@ -9,6 +9,13 @@ query device_startup_info ($device: String!) {
         asn {
           node {
             asn {
+              value
+            }
+          }
+        }
+        primary_address{
+          node{
+            address{
               value
             }
           }
@@ -47,11 +54,30 @@ query device_startup_info ($device: String!) {
       }
     }
   }
-  InfraBGPPeerGroup {
+  InfraBGPSession(device__name__value: $device) {
     edges {
       node {
-        name {
-          value
+        id
+        peer_group {
+          node {
+            name {
+              value
+            }
+          }
+        }
+        local_ip {
+          node {
+            address {
+              value
+            }
+          }
+        }
+        remote_ip {
+          node {
+            address {
+              value
+            }
+          }
         }
         local_as {
           node {
@@ -66,6 +92,9 @@ query device_startup_info ($device: String!) {
               value
             }
           }
+        }
+        description {
+          value
         }
       }
     }

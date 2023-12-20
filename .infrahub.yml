@@ -1,15 +1,17 @@
 ---
 rfiles:
-  - name: device_startup
+  - name: "device_startup"
     description: "Template to generate startup configuration for network devices"
     query: "device_startup_info"
-    repository: "self"
     template_path: "templates/device_startup_config.tpl.j2"
 
-  - name: clab_topology
+  - name: "clab_topology"
     query: "topology_info"
-    repository: "self"
     template_path: "topology/topology.tpl.j2"
+
+  - name: "arista_avd_bgp_yaml"
+    query: "avd_bgp"
+    template_path: "templates/arista_avd_bgp.yaml.j2"
 
 artifact_definitions:
   - name: "Openconfig Interface for Arista devices"
@@ -27,3 +29,39 @@ artifact_definitions:
     content_type: "text/plain"
     targets: "edge_router"
     transformation: "device_startup"
+
+  - name: "BGP variables for Arista AVD"
+    artifact_name: "avdbgp"
+    parameters:
+      device: "name__value"
+    content_type: "application/json"
+    targets: "arista_devices"
+    transformation: "AristaBGP"
+
+  - name: "Config variables for Arista AVD"
+    artifact_name: "avd_config"
+    parameters:
+      device: "name__value"
+    content_type: "application/json"
+    targets: "arista_devices"
+    transformation: "AristaConfig"
+
+check_definitions:
+  - name: backbone_link_redundancy
+    class_name: InfrahubCheckBackboneLinkRedundancy
+    file_path: "checks/check_backbone_link_redundancy.py"
+
+python_transforms:
+  - name: OCInterfaces
+    class_name: OCInterfaces
+    file_path: "transforms/openconfig.py"
+  - name: oc_bgp_neighbors
+    class_name: OCBGPNeighbors
+    file_path: "transforms/openconfig.py"
+  - name: AristaBGP
+    class_name: AristaBGP
+    file_path: "transforms/avdbgp.py"
+  - name: AristaConfig
+    class_name: AristaConfig
+    file_path: "transforms/avd_config.py"
+
