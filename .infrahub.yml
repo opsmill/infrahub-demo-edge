@@ -60,7 +60,7 @@ python_transforms:
     file_path: "transforms/openconfig.py"
   - name: AristaBGP
     class_name: AristaBGP
-    file_path: "transforms/avdbgp.py"
+    file_path: "transforms/avd_bgp.py"
   - name: AristaConfig
     class_name: AristaConfig
     file_path: "transforms/avd_config.py"
