@@ -1,16 +1,16 @@
 [tool.poetry]
-name = "infrahub-demo-edge"
+name = "infrahub-demo-sony"
 version = "0.1.0"
 description = ""
-authors = ["Damien Garros <dgarros@gmail.com>"]
+authors = ["OpsMill <info@opsmill.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9, < 3.12"
-infrahub = {path = "../infrahub", develop=true}
 typer = "^0.7"
-
 pygnmi = "^0.6.9"
 invoke = "^2.1.2"
+infrahub-sdk = "^0, >=0.3.0"
+nornir-infrahub = "^0, >=0.2.2"
 
 [tool.poetry.dev-dependencies]
 
