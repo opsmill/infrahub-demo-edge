@@ -4,5 +4,6 @@
 .venv
 .DS_Store
 .envrc
+.python-version
 playbooks/documentation
 playbooks/intended
