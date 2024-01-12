@@ -1,6 +1,8 @@
 .vscode/*
 *.pyc
 *.tar.gz
+.venv
 .DS_Store
+.envrc
 playbooks/documentation
 playbooks/intended
