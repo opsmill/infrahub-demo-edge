@@ -2,6 +2,21 @@
 ---
 version: '1.0'
 generics:
+  - name: Service
+    namespace: Sony
+    description: "Generic network service"
+    label: "Service"
+    default_filter: name__value
+    order_by:
+      - name__value
+    display_labels:
+      - name__value
+    attributes:
+      - name: name
+        kind: Text
+      - name: description
+        kind: Text
+        optional: true
   - name: Interface
     namespace: Infra
     description: "Generic Network Interface."
