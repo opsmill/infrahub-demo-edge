@@ -733,3 +733,8 @@ nodes:
         name: tags
         optional: true
         peer: BuiltinTag
+      - cardinality: one
+        kind: Attribute
+        name: asn
+        optional: false
+        peer: InfraAutonomousSystem
