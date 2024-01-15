@@ -233,11 +233,6 @@ nodes:
         optional: true
         cardinality: many
         kind: Component
-      - name: asn
-        peer: InfraAutonomousSystem
-        optional: true
-        cardinality: one
-        kind: Attribute
       - name: tags
         peer: BuiltinTag
         optional: true
