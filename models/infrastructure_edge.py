@@ -413,76 +413,6 @@ async def generate_site(client: InfrahubClient, log: logging.Logger, branch: str
                 )
                 await ip.save()
 
-            # Create Circuit and BGP session for transit and peering
-            if intf_role in ["transit", "peering"]:
-                circuit_id_unique = str(uuid.UUID(int=abs(hash(f"{device_name}-{intf_role}-{address}"))))[24:]
-                circuit_id = f"DUFF-{circuit_id_unique}"
-                transit_providers = ["Arelion", "Colt"]
-
-                if intf_role == "transit":
-                    provider_name = transit_providers[intf_idx % 2]
-                elif intf_role == "peering":
-                    provider_name = "Equinix"
-
-                provider = store.get(kind="CoreOrganization", key=provider_name)
-
-                circuit = await client.create(
-                    branch=branch,
-                    kind="InfraCircuit",
-                    circuit_id=circuit_id,
-                    vendor_id=f"{provider_name.upper()}-{UUIDT().short()}",
-                    provider=provider.id,
-                    status={"value": ACTIVE_STATUS, "owner": group_ops.id},
-                    role={
-                        "value": intf_role,
-                        "source": account_pop.id,
-                        "owner": group_eng.id,
-                    },
-                )
-                await circuit.save()
-                log.info(f" - Created {circuit._schema.kind} - {provider_name} [{circuit.vendor_id.value}]")
-
-                endpoint1 = await client.create(
-                    branch=branch,
-                    kind="InfraCircuitEndpoint",
-                    site=site,
-                    circuit=circuit.id,
-                    connected_interface=intf.id,
-                )
-                await endpoint1.save()
-
-                intf.description.value = f"Connected to {provider_name} via {circuit_id}"
-
-                if intf_role == "transit":
-                    peer_group_name = "TRANSIT_TELIA" if "telia" in provider.name.value.lower() else "TRANSIT_DEFAULT"
-
-                    peer_ip = await client.create(
-                        branch=branch,
-                        kind="InfraIPAddress",
-                        address=peer_address,
-                    )
-                    await peer_ip.save()
-
-                    peer_as = store.get(kind="InfraAutonomousSystem", key=provider_name)
-                    bgp_session = await client.create(
-                        branch=branch,
-                        kind="InfraBGPSession",
-                        type="EXTERNAL",
-                        local_as=internal_asn.id,
-                        local_ip=ip.id,
-                        remote_as=peer_as.id,
-                        remote_ip=peer_ip.id,
-                        peer_group=store.get(key=peer_group_name).id,
-                        device=store.get(key=device_name).id,
-                        status=ACTIVE_STATUS,
-                        role=intf_role,
-                    )
-                    await bgp_session.save()
-
-                    log.debug(
-                        f" - Created BGP Session '{device_name}' >> '{provider_name}': '{peer_group_name}' '{ip.address.value}' >> '{peer_ip.address.value}'"
-                    )
-
         # L2 Interfaces
         for intf_idx, intf_name in enumerate(INTERFACE_L2_NAMES[device_type]):
             intf_role = "server"
@@ -515,41 +445,6 @@ async def generate_site(client: InfrahubClient, log: logging.Logger, branch: str
         await intf2.save()
 
         log.info(f" - Connected '{site_name}-edge1::{intf1.name.value}' <> '{site_name}-edge2::{intf2.name.value}'")
-
-    # --------------------------------------------------
-    # Create iBGP Sessions within the Site
-    # --------------------------------------------------
-    for idx in range(0, 2):
-        if idx == 0:
-            device1 = f"{site_name}-{DEVICES[0][0]}"
-            device2 = f"{site_name}-{DEVICES[1][0]}"
-        elif idx == 1:
-            device1 = f"{site_name}-{DEVICES[1][0]}"
-            device2 = f"{site_name}-{DEVICES[0][0]}"
-
-        peer_group_name = "POP_INTERNAL"
-
-        loopback1 = store.get(key=f"{device1}-loopback")
-        loopback2 = store.get(key=f"{device2}-loopback")
-
-        obj = await client.create(
-            branch=branch,
-            kind="InfraBGPSession",
-            type="INTERNAL",
-            local_as=internal_asn.id,
-            local_ip=loopback1.id,
-            remote_as=internal_asn.id,
-            remote_ip=loopback2.id,
-            peer_group=store.get(key=peer_group_name).id,
-            device=store.get(kind="InfraDevice", key=device1).id,
-            status=ACTIVE_STATUS,
-            role=BACKBONE_ROLE,
-        )
-        await obj.save()
-
-        log.info(
-            f" - Created BGP Session '{device1}' >> '{device2}': '{peer_group_name}' '{loopback1.address.value}' >> '{loopback2.address.value}'"
-        )
 
     return site_name
 
@@ -625,35 +520,6 @@ async def branch_scenario_add_transit(client: InfrahubClient, log: logging.Logge
 
     intf.description.value = f"Connected to {gtt_organization.name.value} via {circuit_id}"
     await intf.save()
-
-    # Create BGP Session
-
-    # Create Circuit
-    # Create IP address
-    # Change Role
-    # Change description
-
-    # peer_group_name = "TRANSIT_DEFAULT"
-
-    #     peer_as = store.get(kind="InfraAutonomousSystem", key=gtt_organization.name.value)
-    #     bgp_session = await client.create(
-    #         branch=branch,
-    #         kind="InfraBGPSession",
-    #         type="EXTERNAL",
-    #         local_as=internal_as.id,
-    #         local_ip=ip.id,
-    #         remote_as=peer_as.id,
-    #         remote_ip=peer_ip.id,
-    #         peer_group=store.get(key=peer_group_name).id,
-    #         device=store.get(key=device_name).id,
-    #         status=ACTIVE_STATUS,
-    #         role=store.get(kind="BuiltinRole", key=intf_role).id,
-    #     )
-    #     await bgp_session.save()
-
-    #     log.info(
-    #         f"Created BGP Session '{device_name}' >> '{gtt_organization.name.value}': '{peer_group_name}' '{ip.address.value}' >> '{peer_ip.address.value}'"
-    #     )
 
 
 async def branch_scenario_replace_ip_addresses(client: InfrahubClient, log: logging.Logger, site_name: str):
@@ -990,47 +856,6 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str):
 
     async for _, response in batch.execute():
         log.debug(f"Site {response} Creation Completed")
-
-    # --------------------------------------------------
-    # CREATE Full Mesh iBGP SESSION between all the Edge devices
-    # --------------------------------------------------
-    log.info("Creating Full Mesh iBGP SESSION between all the Edge devices")
-    batch = await client.create_batch()
-    for site1 in SITE_NAMES:
-        for site2 in SITE_NAMES:
-            if site1 == site2:
-                continue
-
-            for idx1 in range(1, 3):
-                for idx2 in range(1, 3):
-                    device1 = f"{site1}-edge{idx1}"
-                    device2 = f"{site2}-edge{idx2}"
-
-                    loopback1 = store.get(key=f"{device1}-loopback")
-                    loopback2 = store.get(key=f"{device2}-loopback")
-
-                    peer_group_name = "POP_GLOBAL"
-
-                    obj = await client.create(
-                        branch=branch,
-                        kind="InfraBGPSession",
-                        type="INTERNAL",
-                        local_as=internal_as.id,
-                        local_ip=loopback1.id,
-                        remote_as=internal_as.id,
-                        remote_ip=loopback2.id,
-                        peer_group=store.get(key=peer_group_name).id,
-                        device=store.get(kind="InfraDevice", key=device1).id,
-                        status=ACTIVE_STATUS,
-                        role=BACKBONE_ROLE,
-                    )
-                    batch.add(task=obj.save, node=obj)
-                    log.info(
-                        f"- Created BGP Session '{device1}' >> '{device2}': '{peer_group_name}' '{loopback1.address.value}' >> '{loopback2.address.value}'"
-                    )
-
-    async for node, _ in batch.execute():
-        log.debug(f"BGP Session Creation Completed")
 
     # --------------------------------------------------
     # CREATE Backbone Links & Circuits
