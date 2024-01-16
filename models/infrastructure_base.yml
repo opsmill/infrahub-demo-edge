@@ -150,6 +150,11 @@ nodes:
         optional: false
         kind: Attribute
         cardinality: one
+      - name: peer_group
+        peer: InfraBGPPeerGroup
+        optional: true
+        kind: Attribute
+        cardinality: one
   - name: Platform
     namespace: Infra
     description: "A Platform represent the type of software running on a device."
