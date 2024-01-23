@@ -4,7 +4,6 @@ from infrahub.transforms import InfrahubTransform
 class AristaConfig(InfrahubTransform):
 
     query = "avd_config"
-    url = "avd/config"
 
     async def transform(self, data):
         bgp_data = self._transform_bgp(data)

@@ -4,7 +4,6 @@ from infrahub.transforms import InfrahubTransform
 class AristaBGP(InfrahubTransform):
 
     query = "avd_bgp"
-    url = "avd/bgp"
 
     async def transform(self, data):
             # Initialize the base structure
