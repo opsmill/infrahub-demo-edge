@@ -148,35 +148,6 @@ generics:
         identifier: connected__endpoint
 
 nodes:
-  - name: IGP
-    namespace: Sony
-    description: "A service representing an IGP deployment"
-    label: Interior Gateway Protocol
-    menu_placement: SonyService
-    inherit_from:
-      - SonyService
-    attributes:
-      - name: "type"
-        kind: Dropdown
-        choices:
-          - name: ospf
-            label: OSPF
-            description: "Open Shortest Path First"
-            color: "#7fbf7f"
-          - name: isis
-            label: IS-IS
-            description: "Intermediate System to Intermediate System"
-      - name: "device_roles"
-        kind: List
-        unique: true
-      - name: "interface_roles"
-        kind: List
-    relationships:
-      - name: site
-        peer: BuiltinLocation
-        optional: false
-        kind: Attribute
-        cardinality: one
   - name: RegionMesh
     namespace: Sony
     description: "A service representing an iBGP mesh within a Region"
