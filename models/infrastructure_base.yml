@@ -367,6 +367,64 @@ nodes:
         cardinality: many
         kind: Attribute
         identifier: interface_l2__tagged_vlan
+  - name: BGPTransitPeering
+    namespace: Sony
+    label: BGP Transit Peering
+    description: "BGP Transit peering service"
+    menu_placement: SonyService
+    inherit_from:
+      - "SonyService"
+    attributes:
+      - name: name
+        label: Name
+        kind: Text
+        unique: true
+    relationships:
+      - name: asn
+        label: ASN
+        peer: InfraAutonomousSystem
+        cardinality: one
+        kind: Attribute
+      - name: location
+        label: Location
+        cardinality: one
+        peer: SonyRegion
+        kind: Attribute
+  - name: TransitPort
+    namespace: Sony
+    label: Transit Port
+    default_filter: name__value
+    menu_placement: InfraEndpoint
+    display_labels:
+      - name__value
+    inherit_from:
+      - "InfraEndpoint"
+    attributes:
+      - name: name
+        kind: Text
+        label: Name
+      - name: speed
+        kind: Number
+        label: Speed
+      - name: bandwidth
+        kind: Number
+        label: Bandwith
+    relationships:
+      - name: asn
+        label: Peer ASN
+        peer: InfraAutonomousSystem
+        cardinality: one
+        kind: Attribute
+      - name: location
+        label: Location
+        peer: SonyRack
+        cardinality: one
+        kind: Attribute
+      - name: ip_address
+        label: IP Address
+        peer: InfraIPAddress
+        cardinality: one
+        kind: Attribute
   - name: IPAddress
     namespace: Infra
     description: "IP Address"
@@ -614,10 +672,16 @@ nodes:
     icon: "mdi:router"
     inherit_from:
       - "CoreArtifactTarget"
+    default_filter: name__value
     order_by:
       - device__name__value
       - remote_as__asn__value
     attributes:
+      - name: name
+        label: Name
+        description: "A Name for the session"
+        kind: Text
+        unique: true
       - name: type
         kind: Text
         enum: [EXTERNAL, INTERNAL]
