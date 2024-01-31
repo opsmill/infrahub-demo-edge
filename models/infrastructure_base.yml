@@ -2,6 +2,23 @@
 ---
 version: '1.0'
 generics:
+  - name: Location
+    namespace: Sony
+    description: "Generic Location Interface."
+    label: "Location"
+    icon: "mingcute:location-line"
+    include_in_menu: true
+    hierarchical: true
+    display_labels:
+      - name__value
+    order_by:
+      - name__value
+    attributes:
+      - name: name
+        kind: Text
+      - name: description
+        kind: Text
+        optional: true
   - name: Service
     namespace: Sony
     description: "Generic network service"
@@ -120,7 +137,7 @@ generics:
   - name: Endpoint
     namespace: Infra
     description: "Generic Endpoint to connect two objects together."
-    include_in_menu: false
+    include_in_menu: true
     label: "Endpoint"
     relationships:
       - name: connected_endpoint
@@ -295,6 +312,12 @@ nodes:
         optional: false
         cardinality: one
         kind: Attribute
+      - name: location
+        label: Location
+        peer: SonyRack
+        optional: true
+        kind: Attribute
+        cardinality: one
       - name: interfaces
         peer: InfraInterface
         identifier: "device__interface"
@@ -777,6 +800,109 @@ nodes:
         name: description
         optional: true
 
+  - name: Continent
+    namespace: Sony
+    inherit_from: ["SonyLocation"]
+    include_in_menu: true
+    menu_placement: "SonyLocation"
+    label: Continent
+    display_labels:
+      - name__value
+    parent: ""
+    children: "SonyCountry"
+    icon: "jam:world"
+    attributes:
+      - name: transit_policy_in
+        label: Transit BGP policy inbound
+        kind: Text
+        optional: true
+      - name: transit_policy_out
+        label: Transit BGP policy outbound
+        kind: Text
+        optional: true
+  - name: Country
+    namespace: Sony
+    inherit_from: ["SonyLocation"]
+    include_in_menu: true
+    menu_placement: "SonyLocation"
+    label: Country
+    display_labels:
+      - name__value
+    parent: "SonyContinent"
+    children: "SonyRegion"
+    icon: "gis:search-country"
+  - name: Region
+    namespace: Sony
+    inherit_from: ["SonyLocation"]
+    include_in_menu: true
+    menu_placement: "SonyLocation"
+    label: Region
+    display_labels:
+      - name__value
+    parent: "SonyCountry"
+    children: "SonyMetro"
+    icon: "carbon:cics-region-target"
+  - name: Metro
+    namespace: Sony
+    inherit_from: ["SonyLocation"]
+    include_in_menu: true
+    menu_placement: "SonyLocation"
+    label: Metro
+    display_labels:
+      - name__value
+    parent: "SonyRegion"
+    children: "SonyBuilding"
+    icon: "healthicons:city"
+  - name: Building
+    namespace: Sony
+    inherit_from: ["SonyLocation"]
+    include_in_menu: true
+    menu_placement: "SonyLocation"
+    label: Building
+    display_labels:
+      - name__value
+    parent: "SonyBuilding"
+    children: "SonyFloor"
+    icon: "ri:building-line"
+  - name: Floor
+    namespace: Sony
+    inherit_from: ["SonyLocation"]
+    include_in_menu: true
+    menu_placement: "SonyLocation"
+    label: Floor
+    display_labels:
+      - name__value
+    parent: "SonyBuilding"
+    icon: "mdi:home-floor-0"
+    children: "SonySuite"
+  - name: Suite
+    namespace: Sony
+    inherit_from: ["SonyLocation"]
+    include_in_menu: true
+    menu_placement: "SonyLocation"
+    label: Suite
+    display_labels:
+      - name__value
+    parent: "SonyFloor"
+    children: "SonyRack"
+    icon: "game-icons:cage"
+  - name: Rack
+    namespace: Sony
+    inherit_from: ["SonyLocation"]
+    include_in_menu: true
+    label: Rack
+    display_labels:
+      - name__value
+    menu_placement: "SonyLocation"
+    parent: "SonySuite"
+    children: ""
+    icon: "clarity:rack-server-line"
+    relationships:
+      - name: devices
+        label: Devices
+        kind: Component
+        cardinality: many
+        peer: InfraDevice
   - name: Location
     namespace: Builtin
     label: Location
