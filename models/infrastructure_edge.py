@@ -11,7 +11,94 @@ from infrahub_sdk.exceptions import GraphQLError
 # flake8: noqa
 # pylint: skip-file
 
-SITES = ["atl", "ord", "jfk", "den", "dfw", "iad", "bkk", "sfo", "iah", "mco"]
+LOCATIONS = {
+    "Europe": {
+        "countries": {
+            "Belgium": {},
+            "Germany": {
+                "Frankfurt": {
+                    "south": {
+                        "building-3": {
+                            "floor-32": {
+                                "suite-325": {
+                                    "rack-3255": ["ord1-core1", "ord1-edge1"]
+                                }
+                            },
+                            "floor-33": {
+                                "suite-338": {
+                                    "rack-3389": ["ord1-core2", "ord1-edge2"]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "United Kingdom": {
+                "London": {
+                    "north": {
+                        "Equinix LD8": {
+                            "floor-59": {
+                                "suite-596": {
+                                    "rack-5964": ["lnd1-core1", "lnd1-core2"]
+                                }
+                            }
+                        }
+                    },
+                },
+            },
+        },
+        "transit_policy_out": "RM_TRANSIT_EMEA_OUT",
+        "transit_policy_in": "RM_TRANSIT_EMEA_IN",
+    },
+    "Africa": {"countries": {"Morocco": {}}, "transit_policy_out": "RM_TRANSIT_AFRICA_OUT"},
+    "Asia": {"countries": {"India": {}, "Japan": {}}, "transit_policy_out": "RM_TRANSIT_ASIA_OUT"},
+    "Oceania": {"countries": {"Australia": {}}, "transit_policy_out": "RM_TRANSIT_OCEANIA_OUT"},
+    "North America": {
+        "countries": {
+            "United States of America": {
+                "Atlanta": {"north": {}, "south": {}},
+                "Denver": {
+                    "west": {
+                        "building-1": {
+                            "floor-11": {
+                                "suite-111": {
+                                    "rack-1111": ["den1-core1", "den1-edge1"]
+                                },
+                                "suite-112": {
+                                    "rack-1121": []
+                                }
+                            },
+                            "floor-12": {
+                                "suite-121": {
+                                    "rack-1211": []
+                                }
+                            }   
+                        },
+                        "building-2": {
+                            "floor-21": {
+                                "suite-211": {
+                                    "rack-2111": []
+                                },
+                                "suite-212": {
+                                    "rack-2121": []
+                                }
+                            },
+                            "floor-22": {
+                                "suite-221": {
+                                    "rack-2211": ["den1-core2", "den1-edge2" ] 
+                                }
+                            }   
+                        },
+                    },
+                }
+            },
+        },
+        "transit_policy_out": "RM_TRANSIT_NORTH_AMERICA_OUT",
+    },
+    "South America": {"countries": {"Brazil": {}}, "transit_policy_out": "RM_SOUTH_AMERICA_OUT"},
+}
+
+SITES = ["atl", "ord", "lnd", "den", "dfw", "jfk", "bkk", "sfo", "iah", "mco"]
 
 PLATFORMS = (
     ("Cisco IOS", "ios", "ios", "cisco_ios", "ios"),
@@ -69,11 +156,11 @@ def site_names_generator(nbr_site=2) -> List[str]:
 
 P2P_NETWORKS_POOL = {
     ("atl1", "edge1", "ord1", "edge1"): next(P2P_NETWORK_POOL).hosts(),
-    ("atl1", "edge1", "jfk1", "edge1"): next(P2P_NETWORK_POOL).hosts(),
-    ("jfk1", "edge1", "ord1", "edge1"): next(P2P_NETWORK_POOL).hosts(),
+    ("atl1", "edge1", "lnd1", "edge1"): next(P2P_NETWORK_POOL).hosts(),
+    ("lnd1", "edge1", "ord1", "edge1"): next(P2P_NETWORK_POOL).hosts(),
     ("atl1", "edge2", "ord1", "edge2"): next(P2P_NETWORK_POOL).hosts(),
-    ("atl1", "edge2", "jfk1", "edge2"): next(P2P_NETWORK_POOL).hosts(),
-    ("jfk1", "edge2", "ord1", "edge2"): next(P2P_NETWORK_POOL).hosts(),
+    ("atl1", "edge2", "lnd1", "edge2"): next(P2P_NETWORK_POOL).hosts(),
+    ("lnd1", "edge2", "ord1", "edge2"): next(P2P_NETWORK_POOL).hosts(),
 }
 
 BACKBONE_CIRCUIT_IDS = [
@@ -243,6 +330,93 @@ async def group_add_member(client: InfrahubClient, group: InfrahubNode, members:
 
     await client.execute_graphql(query=query, branch_name=branch)
 
+async def create_connnection_transit_port(client: InfrahubClient, log: logging.Logger, branch: str):
+
+    remote_ip_addr = await client.create(branch=branch, kind="InfraIPAddress", data={"address": {"value": "203.0.113.74/24"}})
+    await remote_ip_addr.save()
+
+    local_ip_addr= await client.create(branch=branch, kind="InfraIPAddress", data={"address": {"value": "203.0.113.75/24"}})
+    await local_ip_addr.save()
+
+    asn = await client.get(branch=branch, kind="InfraAutonomousSystem", asn__value=174)
+    location = await client.get(branch=branch, kind="SonyRegion", name__value="London")
+
+    sony_interface = await client.get(branch=branch, kind="InfraInterface", device__name__value="lnd1-edge1", name__value="Ethernet5")
+    sony_interface.ip_addresses.add(local_ip_addr)
+    await sony_interface.save()
+
+    transit_port = await client.create(branch=branch, kind="SonyTransitPort", data={"name": "Cogen London Transit Port", "speed": 10000, "bandwidth": 4000, "asn": asn, "location": location, "ip_address": remote_ip_addr, "connected_endpoint": sony_interface})
+    await transit_port.save()
+    
+async def create_location_hierarchy(client: InfrahubClient, log: logging.Logger, branch: str):
+    for continent, data in LOCATIONS.items():
+        infra_continent = await client.create(
+            kind="SonyContinent",
+            data={"name": continent, "transit_policy_out": data.get("transit_policy_out", "")}
+        )
+        await infra_continent.save()
+        log.info(f"- Created {infra_continent._schema.kind} - {infra_continent.name.value}")
+
+        for country, regions in data["countries"].items():
+            infra_country = await client.create(kind="SonyCountry", data={
+                "name": country,
+                "parent": infra_continent
+            })
+            await infra_country.save()
+            log.info(f"- Created {infra_country._schema.kind} - {infra_country.name.value}")
+
+            for region, metros in regions.items():
+                infra_region = await client.create(kind="SonyRegion", data={
+                    "name": region,
+                    "parent": infra_country
+                })
+                await infra_region.save()
+
+                for metro, buildings in metros.items():
+                    infra_metro = await client.create(kind="SonyMetro", data={
+                        "name": metro,
+                        "parent": infra_region
+                    })
+                await infra_metro.save()
+                for building, floors in buildings.items():
+                    infra_building = await client.create(kind="SonyBuilding", data={
+                        "name": building,
+                        "parent": infra_metro
+                    })
+                    await infra_building.save()
+                    for floor, suites in floors.items():
+                        infra_floor = await client.create(kind="SonyFloor", data={
+                            "name": floor,
+                            "parent": infra_building
+                        })
+                        await infra_floor.save()
+                        for suite, racks in suites.items():
+                            infra_suite = await client.create(kind="SonySuite", data={
+                                "name": suite,
+                                "parent": infra_floor
+                            })
+                            await infra_suite.save()
+                            for rack, devices in racks.items():
+                                infra_rack = await client.create(kind="SonyRack", data={
+                                    "name": rack,
+                                    "parent": infra_suite
+                                })
+                                await infra_rack.save()
+
+                                for device in devices:
+                                    infra_device = await client.get("InfraDevice", name__value=device)
+                                    infra_device.location = infra_rack
+                                    await infra_device.save()
+
+async def create_branch_sony_cogent_transit(client: InfrahubClient, log: logging.Logger):
+    new_branch = "sony-cogent-transit-london"
+    await client.branch.create(
+        branch_name=new_branch,
+        data_only=True,
+        description=f"Transit to Cogent in London",
+    )
+    log.info(f"- Creating branch: {new_branch!r}")
+    
 
 async def generate_site(client: InfrahubClient, log: logging.Logger, branch: str, site_name: str):
     group_eng = store.get("Engineering Team")
@@ -775,6 +949,7 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str):
         batch.add(task=obj.save, node=obj)
         store.set(key=platform[0], node=obj)
 
+
     # Create all Groups, Accounts and Organizations
     async for node, _ in batch.execute():
         log.info(f"- Created {node._schema.kind} - {node.name.value}")
@@ -950,6 +1125,9 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str):
 
         log.info(f" - Connected '{site1}-{device}::{intf1.name.value}' <> '{site2}-{device}::{intf2.name.value}'")
 
+    await create_location_hierarchy(client, log, branch)
+    await create_connnection_transit_port(client, log, branch)
+
     # --------------------------------------------------
     # Create some changes in additional branches
     #  Scenario 1 - Add a Peering
@@ -968,3 +1146,4 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str):
         await branch_scenario_remove_colt(site_name=SITE_NAMES[0], client=client, log=log)
         await branch_scenario_conflict_device(site_name=SITE_NAMES[3], client=client, log=log)
         await branch_scenario_conflict_platform(client=client, log=log)
+        await create_branch_sony_cogent_transit(client=client, log=log)
