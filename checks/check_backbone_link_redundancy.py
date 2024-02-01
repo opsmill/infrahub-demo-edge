@@ -7,14 +7,14 @@ class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
 
     query = "check_backbone_link_redundancy"
 
-    def validate(self):
+    def validate(self, data):
 
         site_id_by_name = {}
 
         backbone_links_per_site = defaultdict(lambda: defaultdict(int))
 
-        if self.data["data"]["InfraCircuit"]["edges"]:
-            circuits =  self.data["data"]["InfraCircuit"]["edges"]
+        if data["data"]["InfraCircuit"]["edges"]:
+            circuits =  data["data"]["InfraCircuit"]["edges"]
 
             for circuit in circuits:
                 circuit_node = circuit["node"]
@@ -31,7 +31,7 @@ class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
                         site_id_by_name[site_name] = site_node["id"]
                         backbone_links_per_site[site_name]["total"] += 1
 
-                        if  endpoint_node["connected_endpoint"]:
+                        if endpoint_node["connected_endpoint"]:
                             connected_endpoint_node = endpoint_node["connected_endpoint"]["node"]
                             if connected_endpoint_node:
                                 if (connected_endpoint_node["enabled"]["value"] and circuit_status == "active"):
