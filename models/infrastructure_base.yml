@@ -628,6 +628,7 @@ nodes:
         peer: CoreOrganization
         optional: false
         cardinality: one
+        identifier: organization__asn
         kind: Attribute
   - name: BGPPeerGroup
     namespace: Infra
@@ -767,7 +768,6 @@ nodes:
         optional: true
         cardinality: one
         kind: Attribute
-
   - name: Organization
     namespace: Core
     label: Organization
@@ -777,7 +777,6 @@ nodes:
     order_by: [name__value]
     icon: mdi:domain
     include_in_menu: true
-
     attributes:
       - kind: Text
         name: name
@@ -788,14 +787,18 @@ nodes:
       - kind: Text
         name: description
         optional: true
-
     relationships:
       - cardinality: many
         kind: Attribute
         name: tags
         optional: true
         peer: BuiltinTag
-
+      - name: autonomoussystems
+        peer: InfraAutonomousSystem
+        identifier: organization__asn
+        label: ASN's
+        kind: Attribute
+        optional: true
   - name: Status
     namespace: Builtin
     label: Status
