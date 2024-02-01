@@ -388,7 +388,7 @@ nodes:
       - name: location
         label: Location
         cardinality: one
-        peer: SonyRegion
+        peer: SonyMetro
         kind: Attribute
   - name: TransitPort
     namespace: Sony
@@ -417,7 +417,7 @@ nodes:
         kind: Attribute
       - name: location
         label: Location
-        peer: SonyRack
+        peer: SonyMetro
         cardinality: one
         kind: Attribute
       - name: ip_address

@@ -16,8 +16,8 @@ LOCATIONS = {
         "countries": {
             "Belgium": {},
             "Germany": {
-                "Frankfurt": {
-                    "south": {
+                "de-central": {
+                    "Frankfurt": {
                         "building-3": {
                             "floor-32": {
                                 "suite-325": {
@@ -34,8 +34,8 @@ LOCATIONS = {
                 }
             },
             "United Kingdom": {
-                "London": {
-                    "north": {
+                "uk-east": {
+                    "London": {
                         "Equinix LD8": {
                             "floor-59": {
                                 "suite-596": {
@@ -56,9 +56,9 @@ LOCATIONS = {
     "North America": {
         "countries": {
             "United States of America": {
-                "Atlanta": {"north": {}, "south": {}},
-                "Denver": {
-                    "west": {
+                "us-east": {"Atlanta": {}, "south": {}},
+                "us-central": {
+                    "Denver": {
                         "building-1": {
                             "floor-11": {
                                 "suite-111": {
@@ -339,7 +339,7 @@ async def create_connnection_transit_port(client: InfrahubClient, log: logging.L
     await local_ip_addr.save()
 
     asn = await client.get(branch=branch, kind="InfraAutonomousSystem", asn__value=174)
-    location = await client.get(branch=branch, kind="SonyRegion", name__value="London")
+    location = await client.get(branch=branch, kind="SonyMetro", name__value="London")
 
     sony_interface = await client.get(branch=branch, kind="InfraInterface", device__name__value="lnd1-edge1", name__value="Ethernet5")
     sony_interface.ip_addresses.add(local_ip_addr)
