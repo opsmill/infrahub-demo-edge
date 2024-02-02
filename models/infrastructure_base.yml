@@ -970,3 +970,84 @@ nodes:
         name: asn
         optional: false
         peer: InfraAutonomousSystem
+  - name: IXP
+    namespace: Infra
+    description: "Internet Exchange Point."
+    label: "IXP"
+    default_filter: name__value
+    display_labels:
+      - name__value
+    order_by:
+      - name__value
+    attributes:
+      - name: name
+        kind: Text
+      - name: description
+        kind: Text
+        optional: true
+    relationships:
+      - name: locations
+        peer: SonyLocation
+        optional: true
+        cardinality: many
+        kind: Component
+      - name: endpoints
+        peer: InfraIXPEndpoint
+        optional: true
+        cardinality: many
+        kind: Component
+      - name: peers
+        peer: InfraIXPPeer
+        optional: true
+        cardinality: many
+        kind: Component
+  - name: IXPPeer
+    namespace: Infra
+    description: "Peer in an Internet Exchange Point"
+    label: "IXP Peer"
+    default_filter: name__value
+    display_labels:
+      - name__value
+    order_by:
+      - name__value
+    attributes:
+      - name: name
+        kind: Text
+    relationships:
+      - name: ixp
+        peer: InfraIXP
+        label: IXP
+        cardinality: one
+        kind: Attribute
+      - name: asn
+        peer: InfraAutonomousSystem
+        optional: false
+        cardinality: one
+        kind: Attribute
+      - name: ipaddress
+        peer: InfraIPAddress
+        optional: true
+        cardinality: one
+        kind: Attribute
+  - name: IXPEndpoint
+    namespace: Infra
+    description: "Endpoint to Internet Exchange Point"
+    label: "IXP Endpoint"
+    default_filter: name__value
+    display_labels:
+      - name__value
+    order_by:
+      - name__value
+    inherit_from:
+      - "InfraEndpoint"
+    attributes:
+      - name: name
+        kind: Text
+        optional: false
+        unique: true
+    relationships:
+      - name: ixp
+        peer: InfraIXP
+        optional: false
+        cardinality: one
+        kind: Parent
