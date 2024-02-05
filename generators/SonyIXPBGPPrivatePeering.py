@@ -32,7 +32,7 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str) -> None:
 
         try:
             outbound_policy = await inherit_attribute_from_hierarchy(
-                client, service.ixp.peer.locations.peers[0], "transit_policy_out"
+                client, service.ixp.peer.locations.peers[0].peer, "transit_policy_out"
             )
         except InheritanceException:
             outbound_policy = None
@@ -66,8 +66,6 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str) -> None:
             "InfraAutonomousSystem", branch=branch, asn__value=33353
         )
 
-
-        breakpoint()
         bgp_session = await client.create(
             kind="InfraBGPSession",
             name=f"Sony > {service.asn.peer.organization.peer.name.value}",
@@ -75,7 +73,7 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str) -> None:
             type="EXTERNAL",
             status="active",
             role="transit",
-            local_asn=local_asn,
+            local_as=local_asn,
             import_policies=inbound_policy,
             export_policies=outbound_policy,
             remote_as=service.asn.peer,
