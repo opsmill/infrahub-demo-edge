@@ -1,5 +1,5 @@
 from transforms.openconfig import OCInterfaces, OCBGPNeighbors
-from infrahub_ctl.utils import find_graphql_query
+from infrahub_sdk.ctl.utils import find_graphql_query
 
 
 
