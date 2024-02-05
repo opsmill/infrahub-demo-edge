@@ -39,6 +39,7 @@ def generate_archive(context: Context):
 @task
 def load_schema(context: Context, schema: Path="./models/infrastructure_base.yml") -> None:
     context.run(f"infrahubctl schema load {schema}")
+    restart(context, component="infrahub-server")
 
 @task
 def load_data(context: Context, script: Path="./models/infrastructure_edge.py") -> None:
@@ -55,3 +56,11 @@ def stop(context: Context) -> None:
 @task
 def start(context: Context) -> None:
     context.run("docker compose up -d")
+
+@task
+def restart(context: Context, component: str="")-> None:
+    if not component:
+        context.run("docker compose restart")
+
+    context.run(f"docker compose restart {component}")
+
