@@ -38,8 +38,9 @@ LOCATIONS = {
                     "London": {
                         "Equinix LD8": {
                             "floor-59": {
-                                "suite-596": {
-                                    "rack-5964": ["lnd1-core1", "lnd1-core2"]
+                                "suite-ld8-596": {
+                                    "ld8-5964": ["lnd1-edge1", "lnd1-edge2"],
+                                    "ld8-5965": ["lnd1-core1", "lnd1-core2"],
                                 }
                             }
                         }
@@ -113,6 +114,25 @@ DEVICES = (
     ("core1", "drained", "MX204", "profile1", "core", ["blue"], "Juniper JunOS"),
     ("core2", "provisionning", "MX204", "profile1", "core", ["red"], "Juniper JunOS"),
 )
+
+IXPS = (
+    {"name":"LINX LON1", "description": "London Internet Exchange", "locations": ["Equinix LD8"]},
+    {"name": "IX-Denver", "description": "Denver Internet Exchange", "locations": []},
+    {"name": "AtlantaIX", "description": "Atlanta Internet Exchange", "locations": []},
+    {"name": "France-IX", "description": "Paris Internet Exchange", "locations": []},
+    {"name": "AMS-IX", "description": "Amsterdam Internet Exchange", "locations": []},
+)
+
+IXP_PEERS = (
+    {"name": "LINX - Cogent - 1", "asn": 174, "ixp": "LINX LON1", "ipaddress": "203.0.113.76/24"},
+    {"name": "LINX - Cogent - 2", "asn": 174, "ixp": "LINX LON1", "ipaddress": "203.0.113.77/24"}
+)
+
+IXP_ENDPOINTS = (
+    {"name": "LINX - SIE - 1", "ixp": "LINX LON1", "device": "lnd1-edge1", "interface": "Ethernet7", "ipaddress": "203.0.113.78/24"},
+    {"name": "LINX - SIE - 2", "ixp": "LINX LON1", "device": "lnd1-edge2", "interface": "Ethernet7", "ipaddress": "203.0.113.79/24"},
+)
+
 
 INTERNAL_AS_RANGE = list(range(64_512, 65_535))
 
@@ -417,6 +437,43 @@ async def create_branch_sony_cogent_transit(client: InfrahubClient, log: logging
     )
     log.info(f"- Creating branch: {new_branch!r}")
     
+
+async def create_ixps(client: InfrahubClient, log: logging.Logger, branch: str):
+    for ixp in IXPS:
+        locations = []
+        if len(ixp.get("locations")) > 0:
+            locations = await client.filters("SonyLocation", branch=branch, name__values=ixp.get("locations"))
+        obj = await client.create(kind="InfraIXP", branch=branch, data={**ixp, **{"locations": locations}})
+        await obj.save()
+
+async def create_ixp_peers(client: InfrahubClient, log: logging.Logger, branch: str):
+    for ixp_peer in IXP_PEERS:
+        ixp = await client.get("InfraIXP", branch=branch, name__value=ixp_peer.get("ixp"))
+
+        ipaddress = await client.create("InfraIPAddress", branch=branch, data={"address":ixp_peer.get("ipaddress")})
+        await ipaddress.save()
+
+        asn = await client.get("InfraAutonomousSystem", branch=branch, asn__value=ixp_peer.get("asn"))
+
+        obj = await client.create(kind="InfraIXPPeer", branch=branch, data = {**ixp_peer, **{"ixp": ixp, "ipaddress": ipaddress, "asn": asn}})
+        await obj.save()
+
+async def create_ixp_endpoints(client: InfrahubClient, log: logging.Logger, branch: str):
+
+    for ixp_endpoint in IXP_ENDPOINTS:
+        device = await client.get("InfraDevice",branch=branch, name__value=ixp_endpoint.get("device"))
+        ixp = await client.get("InfraIXP", name__value=ixp_endpoint.get("ixp"))
+
+        interface = await client.get("InfraInterface", branch=branch, name__value=ixp_endpoint.get("interface"), device__ids=[device.id]) 
+        interface.role.value = "transit"
+        await interface.save()
+
+        ip_address = await client.create("InfraIPAddress", data={"address": {"value": ixp_endpoint.get("ipaddress")}, "interface": interface})
+        await ip_address.save()
+
+        endpoint = await client.create("InfraIXPEndpoint", data={"name": ixp_endpoint.get("name"), "ixp": ixp, "connected_endpoint": interface})
+        await endpoint.save(allow_upsert=True)
+
 
 async def generate_site(client: InfrahubClient, log: logging.Logger, branch: str, site_name: str):
     group_eng = store.get("Engineering Team")
@@ -1127,6 +1184,9 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str):
 
     await create_location_hierarchy(client, log, branch)
     await create_connnection_transit_port(client, log, branch)
+    await create_ixps(client, log, branch)
+    await create_ixp_peers(client, log, branch)
+    await create_ixp_endpoints(client, log, branch)
 
     # --------------------------------------------------
     # Create some changes in additional branches
