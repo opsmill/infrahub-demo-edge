@@ -926,7 +926,7 @@ nodes:
     label: Building
     display_labels:
       - name__value
-    parent: "SonyBuilding"
+    parent: "SonyMetro"
     children: "SonyFloor"
     icon: "ri:building-line"
   - name: Floor
