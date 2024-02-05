@@ -404,7 +404,7 @@ nodes:
         unique: true
       - name: redundant
         label: Redundant Sessions
-        kind: Checkbox
+        kind: Boolean
         optional: true
     relationships:
       - name: asn
