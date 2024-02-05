@@ -390,6 +390,33 @@ nodes:
         cardinality: one
         peer: SonyMetro
         kind: Attribute
+  - name: IXPBGPPrivatePeering
+    namespace: Sony
+    label: "IPX BGP private peering"
+    description: "Private BGP peering over IXP"
+    menu_placement: SonyService
+    inherit_from:
+      - "SonyService"
+    attributes:
+      - name: name
+        label: Name
+        kind: Text
+        unique: true
+      - name: redundant
+        label: Redundant Sessions
+        kind: Checkbox
+        optional: true
+    relationships:
+      - name: asn
+        label: ASN
+        peer: InfraAutonomousSystem
+        cardinality: one
+        kind: Attribute
+      - name: ixp
+        label: IXP
+        cardinality: one
+        peer: InfraIXP
+        kind: Attribute
   - name: TransitPort
     namespace: Sony
     label: Transit Port
@@ -990,7 +1017,7 @@ nodes:
         peer: SonyLocation
         optional: true
         cardinality: many
-        kind: Component
+        kind: Attribute
       - name: endpoints
         peer: InfraIXPEndpoint
         optional: true
