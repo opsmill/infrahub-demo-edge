@@ -50,38 +50,43 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str) -> None:
             ixp__ids=[service.ixp.id]
         )
 
-        sessions = []
-        if service.redundant.value:
-            raise NotImplementedError("Redundant IXP Services have not been implemented yet")
+        if len(ixp_peers) != len(ixp_endpoints) and service.redundant.value:
+            raise ValueError("Redundancy is required but the amount of IXP Peers does not match the amount the amount of endpoints")
 
-        ixp_peer = ixp_peers[0]
-        await ixp_peer.ipaddress.fetch()
-
-        local_endpoint = ixp_endpoints[0]
-        await local_endpoint.connected_endpoint.fetch()
-        await local_endpoint.connected_endpoint.peer.ip_addresses.fetch()
-        await local_endpoint.connected_endpoint.peer.device.fetch()
+        if not service.redundant.value:
+            ixp_peers = [ixp_peers[0]]
+            ixp_endpoints = [ixp_endpoints[0]]
 
         local_asn = await client.get(
             "InfraAutonomousSystem", branch=branch, asn__value=33353
         )
 
-        bgp_session = await client.create(
-            kind="InfraBGPSession",
-            name=f"Sony > {service.asn.peer.organization.peer.name.value}",
-            branch=branch,
-            type="EXTERNAL",
-            status="active",
-            role="transit",
-            local_as=local_asn,
-            import_policies=inbound_policy,
-            export_policies=outbound_policy,
-            remote_as=service.asn.peer,
-            local_ip = local_endpoint.connected_endpoint.peer.ip_addresses.peers[0],
-            remote_ip = ixp_peer.ipaddress.peer,
-            device = local_endpoint.connected_endpoint.peer.device.peer,
-        )
-        await bgp_session.save(allow_upsert=True)
+        for idx, (ixp_peer, ixp_endpoint) in enumerate(zip(ixp_peers, ixp_endpoints), start=1):
+
+            await ixp_peer.ipaddress.fetch()
+
+            await ixp_endpoint.connected_endpoint.fetch()
+            await ixp_endpoint.connected_endpoint.peer.ip_addresses.fetch()
+            await ixp_endpoint.connected_endpoint.peer.device.fetch()
+
+            name = f"Sony > {service.asn.peer.organization.peer.name.value} > {idx}" 
+
+            bgp_session = await client.create(
+                kind="InfraBGPSession",
+                name=name,
+                branch=branch,
+                type="EXTERNAL",
+                status="active",
+                role="transit",
+                local_as=local_asn,
+                import_policies=inbound_policy,
+                export_policies=outbound_policy,
+                remote_as=service.asn.peer,
+                local_ip = ixp_endpoint.connected_endpoint.peer.ip_addresses.peers[0],
+                remote_ip = ixp_peer.ipaddress.peer,
+                device = ixp_endpoint.connected_endpoint.peer.device.peer,
+            )
+            await bgp_session.save(allow_upsert=True)
 
 if __name__ == "__main__":
     config = Config(api_token=os.getenv("INFRAHUB_API_TOKEN"))
