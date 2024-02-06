@@ -1033,6 +1033,7 @@ nodes:
     description: "Peer in an Internet Exchange Point"
     label: "IXP Peer"
     default_filter: name__value
+    menu_placement: "InfraIXP"
     display_labels:
       - name__value
     order_by:
@@ -1061,6 +1062,7 @@ nodes:
     description: "Endpoint to Internet Exchange Point"
     label: "IXP Endpoint"
     default_filter: name__value
+    menu_placement: "InfraIXP"
     display_labels:
       - name__value
     order_by:
