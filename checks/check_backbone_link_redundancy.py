@@ -18,7 +18,7 @@ class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
 
             for circuit in circuits:
                 circuit_node = circuit["node"]
-                circuit_status = circuit_node["status"]["node"]["name"]["value"]
+                circuit_status = circuit_node["status"]["value"]
 
                 if circuit_node["endpoints"]["edges"]:
                     endpoints =  circuit_node["endpoints"]["edges"]
