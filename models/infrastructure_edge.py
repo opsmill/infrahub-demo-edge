@@ -1206,4 +1206,4 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str):
         await branch_scenario_remove_colt(site_name=SITE_NAMES[0], client=client, log=log)
         await branch_scenario_conflict_device(site_name=SITE_NAMES[3], client=client, log=log)
         await branch_scenario_conflict_platform(client=client, log=log)
-        await create_branch_sony_cogent_transit(client=client, log=log)
+        # await create_branch_sony_cogent_transit(client=client, log=log)
