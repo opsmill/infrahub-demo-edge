@@ -81,17 +81,17 @@ class OCBGPNeighbors(InfrahubTransform):
                 "config": {"neighbor-address": neighbor_address},
             }
 
-            if session["node"]["peer_group"]:
+            if session["node"]["peer_group"]["node"]:
                 session_data["config"]["peer-group"] = session["node"]["peer_group"][
                     "node"
                 ]["name"]["value"]
 
-            if session["node"]["remote_as"]:
+            if session["node"]["remote_as"]["node"]:
                 session_data["config"]["peer-as"] = session["node"]["remote_as"][
                     "node"
                 ]["asn"]["value"]
 
-            if session["node"]["local_as"]:
+            if session["node"]["local_as"]["node"]:
                 session_data["config"]["local-as"] = session["node"]["local_as"][
                     "node"
                 ]["asn"]["value"]
