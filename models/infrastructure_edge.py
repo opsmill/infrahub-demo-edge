@@ -110,7 +110,7 @@ PLATFORMS = (
 
 DEVICES = (
     ("edge1", "active", "7280R3", "profile1", "edge", ["red", "green"], "Arista EOS"),
-    ("edge2", "active", "ASR1002-HX", "profile1", "edge", ["red", "blue", "green"], "Cisco IOS"),
+    ("edge2", "active", "7280R3", "profile1", "edge", ["red", "blue", "green"], "Arista EOS"),
     ("core1", "drained", "MX204", "profile1", "core", ["blue"], "Juniper JunOS"),
     ("core2", "provisionning", "MX204", "profile1", "core", ["red"], "Juniper JunOS"),
 )
