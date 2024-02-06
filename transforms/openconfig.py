@@ -71,7 +71,7 @@ class OCBGPNeighbors(InfrahubTransform):
 
         response_payload["openconfig-bgp:neighbors"] = {"neighbor": []}
 
-        for session in data["InfraBGPSession"]["edges"]:
+        for session in data["data"]["InfraBGPSession"]["edges"]:
 
             neighbor_address = session["node"]["remote_ip"]["node"]["address"][
                 "value"
