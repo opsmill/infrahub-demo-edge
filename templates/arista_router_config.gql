@@ -47,6 +47,7 @@ query device_config($device: String!) {
     }
   }
   InfraBGPSession(device__name__value: $device) {
+    count
     edges {
       node {
         id
