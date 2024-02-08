@@ -680,6 +680,12 @@ nodes:
       - name: export_policies
         kind: Text
         optional: true
+      - name: maximum_routes
+        kind: Number
+        optional: true
+      - name: send_community
+        kind: Checkbox
+        optional: true
     relationships:
       - name: local_as
         identifier: bgppeergroup__local_as
