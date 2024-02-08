@@ -62,7 +62,8 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str) -> None:
             await ixp_endpoint.connected_endpoint.peer.ip_addresses.fetch()
             await ixp_endpoint.connected_endpoint.peer.device.fetch()
 
-            name = f"Sony > {service.asn.peer.organization.peer.name.value} > {idx}" 
+            org_slug = service.asn.peer.organization.peer.name.value.lower().replace(" ", "_")
+            name = f"sie_{org_slug}_{idx}"
 
             bgp_session = await client.create(
                 kind="InfraBGPSession",
@@ -71,6 +72,7 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str) -> None:
                 type="EXTERNAL",
                 status="active",
                 role="transit",
+                description=service.description.value,
                 local_as=local_asn,
                 peer_group=peer_group,
                 remote_as=service.asn.peer,
