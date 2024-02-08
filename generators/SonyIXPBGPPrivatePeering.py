@@ -24,18 +24,11 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str) -> None:
         await service.ixp.peer.locations.fetch()
 
         try:
-            inbound_policy = await inherit_attribute_from_hierarchy(
-                client, service.ixp.peer.locations.peers[0].peer, "transit_policy_in"
+            peer_group = await inherit_attribute_from_hierarchy(
+                client, service.ixp.peer.locations.peers[0].peer, "transit_peer_group"
             )
         except InheritanceException:
-            inbound_policy = None
-
-        try:
-            outbound_policy = await inherit_attribute_from_hierarchy(
-                client, service.ixp.peer.locations.peers[0].peer, "transit_policy_out"
-            )
-        except InheritanceException:
-            outbound_policy = None
+            peer_group = None
 
         ixp_peers = await client.filters(
             kind="InfraIXPPeer",
@@ -79,8 +72,7 @@ async def run(client: InfrahubClient, log: logging.Logger, branch: str) -> None:
                 status="active",
                 role="transit",
                 local_as=local_asn,
-                import_policies=inbound_policy,
-                export_policies=outbound_policy,
+                peer_group=peer_group,
                 remote_as=service.asn.peer,
                 local_ip = ixp_endpoint.connected_endpoint.peer.ip_addresses.peers[0],
                 remote_ip = ixp_peer.ipaddress.peer,

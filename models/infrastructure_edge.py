@@ -372,7 +372,7 @@ async def create_location_hierarchy(client: InfrahubClient, log: logging.Logger,
     for continent, data in LOCATIONS.items():
         infra_continent = await client.create(
             kind="SonyContinent",
-            data={"name": continent, "transit_policy_out": data.get("transit_policy_out", "")}
+            data={"name": continent}
         )
         await infra_continent.save()
         log.info(f"- Created {infra_continent._schema.kind} - {infra_continent.name.value}")

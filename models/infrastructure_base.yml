@@ -876,14 +876,11 @@ nodes:
     parent: ""
     children: "SonyCountry"
     icon: "jam:world"
-    attributes:
-      - name: transit_policy_in
-        label: Transit BGP policy inbound
-        kind: Text
-        optional: true
-      - name: transit_policy_out
-        label: Transit BGP policy outbound
-        kind: Text
+    relationships:
+      - name: transit_peer_group
+        label: "Transit peer group"
+        peer: InfraBGPPeerGroup
+        cardinality: "one"
         optional: true
   - name: Country
     namespace: Sony
