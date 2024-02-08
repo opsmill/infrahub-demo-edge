@@ -18,6 +18,7 @@ artifact_definitions:
     artifact_name: "config-arista"
     parameters:
       device: "name__value"
+    content_type: "text/plain"
     targets: "arista_devices"
     transformation: "arista_config"
 
