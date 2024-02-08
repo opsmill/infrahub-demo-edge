@@ -1,0 +1,18 @@
+{% for interface in data.InfraDevice.edges[0].node.interfaces.edges %}
+{% if interface.node.__typename == "InfraInterfaceL3" %}
+interface {{ interface.node.name.value }} 
+  description {{ interface.node.description.value }}
+  {% if interface.node.enabled %}
+  no shutdown
+  {% endif %}
+  mtu {{ interface.node.mtu.value }}
+  no switchport
+  {% if interface.node.role.value == "management" %}
+  vrf MGMT
+  {% endif %}
+  {% for ip_addr in interface.node.ip_addresses.edges %}
+  ip address {{ ip_addr.node.address.value }}
+  {% endfor %}
+!
+{% endif %}
+{% endfor %}

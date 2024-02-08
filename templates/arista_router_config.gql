@@ -1,0 +1,109 @@
+query device_config($device: String!) {
+  InfraDevice(name__value: $device) {
+    edges {
+      node {
+        id
+        name {
+          value
+        }
+        interfaces {
+          edges {
+            node{
+              ... on InfraInterfaceL3 {
+                __typename
+                name {
+                  value
+                }
+                description {
+                  value
+                }
+                speed {
+                  value
+                }
+                mtu {
+                  value
+                }
+                enabled {
+                  value
+                }
+                role {
+                  value
+                }
+                ip_addresses {
+                  edges {
+                    node {
+                      address {
+                        ip 
+			value
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  InfraBGPSession(device__name__value: $device) {
+    edges {
+      node {
+        id
+        description {
+          value
+        }
+        remote_ip {
+          node {
+            address {
+              ip
+            }
+          }
+        }
+        remote_as {
+          node {
+            asn {
+              value
+            }
+          }
+        }
+        peer_group {
+          node {
+            name {
+              value
+            }
+            description {
+              value
+            }
+            import_policies {
+              value
+            }
+	    send_community {
+	      value
+	    }
+	    maximum_routes {
+	      value
+	    }
+            export_policies {
+              value
+            }
+            local_as {
+              node {
+                asn {
+                  value
+                }
+              }
+            }
+            remote_as {
+              node {
+                asn {
+                  value
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

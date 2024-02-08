@@ -1,0 +1,43 @@
+{% set ns = namespace(loopback_intf_name=none, loopback_ip=none, management_intf_name=none, management_ip=none, bgp_peer_groups={}) %}
+{% for intf in data.InfraDevice.edges[0].node.interfaces.edges %}
+{%   if "role" in intf.node and intf.node.role.value == "loopback" %}
+{%     set ns.loopback_intf_name = intf.node.name.value %}
+{%     set ns.loopback_ip = intf.node.ip_addresses.edges[0].node.address.ip %}
+{%   elif "role" in intf.node and intf.node.role.value == "management" %}
+{%     set ns.management_intf_name = intf.node.name.value %}
+{%     set ns.management_ip = intf.node.ip_addresses.edges[0].node.address.ip %}
+{%   endif %}
+{% endfor %}
+hostname {{ data.InfraDevice.edges[0].node.name.value }}
+ip name-server vrf MGMT 8.8.8.8
+!
+dns domain opsmill.com
+!
+ntp local-interface vrf MGMT {{ ns.management_intf_name }}
+ntp server vrf MGMT time1.google.com
+!
+no aaa root
+no enable password
+!
+username admin privilege 15 role network-admin secret admin
+!
+vrf instance MGMT
+!
+{% include 'templates/arista_interfaces_config.j2' %} 
+!
+ip routing
+no ip routing vrf MGMT
+!
+ip route vrf MGMT 0.0.0.0/0 192.168.123.1
+!
+{% include 'templates/arista_bgp_config.j2' %}
+
+{# ! #}
+{# management api http-commands #}
+{#    protocol https #}
+{#    no shutdown #}
+{#    ! #}
+{#    vrf MGMT #}
+{#       no shutdown #}
+{# ! #}
+{# end #}

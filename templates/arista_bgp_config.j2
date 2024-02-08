@@ -1,0 +1,21 @@
+{% for session in data.InfraBGPSession.edges %}
+  {% set _ = ns.bgp_peer_groups.update({session.node.peer_group.node.name.value: session.node.peer_group.node}) %}
+{% endfor %}
+router bgp 65000
+   router-id {{ ns.loopback_ip }}
+   maximum-paths 4 ecmp 4 
+   {% for name, group in ns.bgp_peer_groups.items() %}
+   neighbor {{ name }} peer group 
+   {% if group.send_community.value %}
+   neighbor {{ name }} send-community 
+   {% endif %}
+   neighbor {{ name }} maximum-routes {{ group.maximum_routes.value }} 
+   neighbor {{ name }} local-as {{ group.local_as.node.asn.value }}  
+   neighbor {{ name }} route-map {{ group.import_policies.value }} in  
+   neighbor {{ name }} route-map {{ group.export_policies.value }} out  
+   {% endfor %}
+   {% for session in data.InfraBGPSession.edges %}
+   neighbor {{ session.node.remote_ip.node.address.ip }} peer group {{session.node.peer_group.node.name.value }} 
+   neighbor {{ session.node.remote_ip.node.address.ip }} description {{ session.node.description.value }} 
+   {% endfor %}
+!
