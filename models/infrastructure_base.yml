@@ -392,9 +392,11 @@ nodes:
         kind: Attribute
   - name: IXPBGPPrivatePeering
     namespace: Sony
-    label: "IPX BGP private peering"
+    label: "IXP BGP private peering"
     description: "Private BGP peering over IXP"
     menu_placement: SonyService
+    display_labels:
+      - name__value
     inherit_from:
       - "SonyService"
     attributes:
@@ -1044,6 +1046,11 @@ nodes:
     attributes:
       - name: name
         kind: Text
+        optional: false
+        unique: true
+      - name: description
+        kind: Text
+        optional: true
     relationships:
       - name: ixp
         peer: InfraIXP
@@ -1077,6 +1084,9 @@ nodes:
         kind: Text
         optional: false
         unique: true
+      - name: description
+        kind: Text
+        optional: true
     relationships:
       - name: ixp
         peer: InfraIXP
