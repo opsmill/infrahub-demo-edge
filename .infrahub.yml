@@ -1,4 +1,11 @@
 ---
+check_definitions:
+  - name: "BGP transit session check"
+    file_path: "./checks/check_bgp_transit_session.py"
+    # parameters:
+    # targets:
+    class_name: "SonyBGPSessionCheck"
+
 artifact_definitions:
   - name: "Openconfig Interface for Arista devices"
     artifact_name: "openconfig-interfaces"

@@ -1,0 +1,146 @@
+query {
+  InfraBGPSession(role__value: "transit") {
+    edges {
+      node {
+        id 
+        name {
+          value
+        }
+        type {
+          value
+        }
+        status {
+          value
+        }
+        description{
+          value
+        }
+        import_policies {
+          value
+        }
+        export_policies {
+          value
+        }
+        local_as {
+          node {
+            asn {
+              value
+            }
+            id
+          }
+        }
+        remote_as {
+          node {
+            asn {
+              value
+            }
+            id
+          }
+        }
+        local_ip {
+          node {
+            id
+            address {
+              ip
+            }
+          }
+        }
+        remote_ip {
+          node {
+            id
+            address {
+              ip
+            }
+          }
+        }
+      }
+    }
+  }
+  InfraInterfaceL3(role__value: "transit") {
+    edges {
+      node {
+        name {
+          value
+        }
+        device {
+          node {
+            id
+            name {
+              value
+            }
+          }
+        }
+        ip_addresses {
+          edges {
+            node {
+              id
+              address {
+                ip
+              }
+            }
+          }
+        }
+        connected_endpoint {
+          node {
+            id
+            __typename
+          }
+        }
+      }
+    }
+  }
+  InfraIXPPeer {
+    edges {
+      node {
+        id
+        name {
+          value
+        }
+        asn {
+          node {
+            asn {
+              value
+            }
+            organization {
+              node {
+                id
+                name {
+                  value
+                }
+              }
+            }
+          }
+        }
+        ipaddress {
+          node {
+            id
+            address {
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+  InfraIXPEndpoint {
+    edges {
+      node {
+        id
+        name {
+          value
+        }
+        ixp {
+          node {
+            id
+          }
+        }
+        connected_endpoint {
+          node {
+            id
+            __typename
+          }
+        }
+      }
+    }
+  }
+}
