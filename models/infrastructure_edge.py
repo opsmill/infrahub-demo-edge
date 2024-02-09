@@ -124,13 +124,15 @@ IXPS = (
 )
 
 IXP_PEERS = (
-    {"name": "LINX - Cogent - 1", "asn": 174, "ixp": "LINX LON1", "ipaddress": "203.0.113.76/24"},
-    {"name": "LINX - Cogent - 2", "asn": 174, "ixp": "LINX LON1", "ipaddress": "203.0.113.77/24"}
+    {"name": "linx_cogent_1", "description": "Cogent LINX LON1 - 1", "asn": 174, "ixp": "LINX LON1", "ipaddress": "203.0.113.76/24"},
+    {"name": "linx_cogent_2", "description": "Cogent LINX LON1 - 2", "asn": 174, "ixp": "LINX LON1", "ipaddress": "203.0.113.77/24"},
+    {"name": "linx_tata_1", "description": "TATA LINX LON1 - 1", "asn": 6453, "ixp": "LINX LON1", "ipaddress": "203.0.113.80/24"},
+    {"name": "linx_tata_2", "description": "TATA LINX LON1 - 1", "asn": 6453, "ixp": "LINX LON1", "ipaddress": "203.0.113.81/24"},
 )
 
 IXP_ENDPOINTS = (
-    {"name": "LINX - SIE - 1", "ixp": "LINX LON1", "device": "lnd1-edge1", "interface": "Ethernet7", "ipaddress": "203.0.113.78/24"},
-    {"name": "LINX - SIE - 2", "ixp": "LINX LON1", "device": "lnd1-edge2", "interface": "Ethernet7", "ipaddress": "203.0.113.79/24"},
+    {"name": "linx_sie_1", "description": "SIE LINX LON 1 - 1", "ixp": "LINX LON1", "device": "lnd1-edge1", "interface": "Ethernet7", "ipaddress": "203.0.113.78/24"},
+    {"name": "linx_sie_2", "description": "SIE LINX LON 1 - 2", "ixp": "LINX LON1", "device": "lnd1-edge2", "interface": "Ethernet7", "ipaddress": "203.0.113.79/24"},
 )
 
 
