@@ -84,6 +84,13 @@ query {
           node {
             id
             __typename
+	    ... on InfraIXPEndpoint {
+	      ixp {
+		node {
+		  id
+		}
+	      }
+	    }
           }
         }
       }
@@ -119,27 +126,11 @@ query {
             }
           }
         }
-      }
-    }
-  }
-  InfraIXPEndpoint {
-    edges {
-      node {
-        id
-        name {
-          value
-        }
-        ixp {
-          node {
-            id
-          }
-        }
-        connected_endpoint {
-          node {
-            id
-            __typename
-          }
-        }
+	ixp {
+	  node {
+	    id
+	  }
+	}
       }
     }
   }
