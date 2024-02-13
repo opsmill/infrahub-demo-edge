@@ -35,9 +35,9 @@
       "INFRAHUB_SECURITY_SECRET_KEY": "327f747f-efac-42be-9e73-999f08f86b92",
       "INFRAHUB_METRICS_PORT": 8001,
       "INFRAHUB_DB_TYPE": "neo4j",
-      "DATABASE_DOCKER_IMAGE": "neo4j:5.14-community",
-      "CACHE_DOCKER_IMAGE": "redis:7.2",
-      "MESSAGE_QUEUE_IMAGE": "rabbitmq:3.12-management"
+      "DATABASE_DOCKER_IMAGE": "neo4j:5.16.0-enterprise",
+      "CACHE_DOCKER_IMAGE": "redis:7.2.4",
+      "MESSAGE_QUEUE_IMAGE": "rabbitmq:3.12.12-management"
   },
   "forwardPorts": [8000],
   "runArgs": ["--volume=/var/lib/docker", "--privileged"],
