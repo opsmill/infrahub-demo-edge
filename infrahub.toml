@@ -1,0 +1,39 @@
+[main]
+internal_address = "http://infrahub-server:8000"
+
+[git]
+repositories_directory = "/opt/infrahub/git"
+
+[database]
+username = "neo4j"
+password = "admin"
+address = "database"
+port = 7687
+protocol = "bolt"
+max_depth_search_hierarchy = 10
+
+[broker]
+address = "message-queue"
+username = "infrahub"
+password = "infrahub"
+
+[cache]
+address = "cache"
+
+[storage]
+driver = "local"
+
+[storage.local]
+path = "/opt/infrahub/storage"
+
+[trace]
+enable = false
+insecure = "True"
+exporter_type = "otlp"
+exporter_protocol = "grpc"
+exporter_endpoint = "tempo"
+exporter_port = 4317
+
+
+# [experimental_features]
+# pull_request = true

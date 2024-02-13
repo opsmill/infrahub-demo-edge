@@ -64,6 +64,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      - "./infrahub.toml:/source/development/infrahub.toml"
       - "storage_data:/opt/infrahub/storage"
     tty: true
     healthcheck:
@@ -91,6 +92,7 @@ services:
       - "INFRAHUB_SDK_TIMEOUT=20"
       - "INFRAHUB_DB_TYPE=neo4j"
     volumes:
+      - "./infrahub.toml:/source/development/infrahub.toml"
       - "git_data:/opt/infrahub/git"
       - "git_remote_data:/remote"
     tty: true
