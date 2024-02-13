@@ -1,41 +1,41 @@
 ---
-# check_definitions:
-#   - name: "BGP transit session check"
-#     file_path: "./checks/check_bgp_transit_session.py"
-#     # parameters:
-#     # targets:
-#     class_name: "SonyBGPSessionCheck"
+check_definitions:
+  - name: "BGP transit session check"
+    file_path: "./checks/check_bgp_transit_session.py"
+    # parameters:
+    # targets:
+    class_name: "SonyBGPSessionCheck"
 
-# artifact_definitions:
-#   - name: "Openconfig Interface for Arista devices"
-#     artifact_name: "openconfig-interfaces"
-#     parameters:
-#       device: "name__value"
-#     content_type: "application/json"
-#     targets: "arista_devices"
-#     transformation: "OCInterfaces"
-#   - name: "Openconfig BGP for Artista devices"
-#     artifact_name: "openconfig-bgp"
-#     parameters:
-#       device: "name__value"
-#     content_type: "application/json"
-#     targets: "arista_devices"
-#     transformation: "OCBGPNeighbors"
-#   - name: "Config for Arista devices"
-#     artifact_name: "config-arista"
-#     parameters:
-#       device: "name__value"
-#     content_type: "text/plain"
-#     targets: "arista_devices"
-#     transformation: "arista_config"
+artifact_definitions:
+  - name: "Openconfig Interface for Arista devices"
+    artifact_name: "openconfig-interfaces"
+    parameters:
+      device: "name__value"
+    content_type: "application/json"
+    targets: "arista_devices"
+    transformation: "OCInterfaces"
+  - name: "Openconfig BGP for Artista devices"
+    artifact_name: "openconfig-bgp"
+    parameters:
+      device: "name__value"
+    content_type: "application/json"
+    targets: "arista_devices"
+    transformation: "OCBGPNeighbors"
+  - name: "Config for Arista devices"
+    artifact_name: "config-arista"
+    parameters:
+      device: "name__value"
+    content_type: "text/plain"
+    targets: "arista_devices"
+    transformation: "arista_config"
 
-# python_transforms:
-#   - name: OCInterfaces
-#     class_name: OCInterfaces
-#     file_path: "transforms/openconfig.py"
-#   - name: OCBGPNeighbors
-#     class_name: OCBGPNeighbors
-#     file_path: "transforms/openconfig.py"
+python_transforms:
+  - name: OCInterfaces
+    class_name: OCInterfaces
+    file_path: "transforms/openconfig.py"
+  - name: OCBGPNeighbors
+    class_name: OCBGPNeighbors
+    file_path: "transforms/openconfig.py"
 
 jinja2_transforms:
   - name: "arista_config"
