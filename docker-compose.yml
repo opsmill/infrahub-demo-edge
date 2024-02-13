@@ -37,9 +37,12 @@ services:
       timeout: 10s
       retries: 20
       start_period: 3s
+    ports:
+      - "7687:7687"
+      - "7474:7474"
 
   infrahub-server:
-    image: "${INFRAHUB_CONTAINER_REGISTRY}/opsmill/infrahub:${INFRAHUB_VERSION}"
+    image: "${INFRAHUB_CONTAINER_REGISTRY}/opsmill/${INFRAHUB_IMAGE_NAME}:${INFRAHUB_VERSION}"
     command: gunicorn --config backend/infrahub/serve/gunicorn_config.py --logger-class infrahub.serve.log.GunicornLogger infrahub.server:app
     depends_on:
       database:
@@ -74,7 +77,7 @@ services:
     deploy:
       mode: replicated
       replicas: 2
-    image: "${INFRAHUB_CONTAINER_REGISTRY}/opsmill/infrahub:${INFRAHUB_VERSION}"
+    image: "${INFRAHUB_CONTAINER_REGISTRY}/opsmill/${INFRAHUB_IMAGE_NAME}:${INFRAHUB_VERSION}"
     command: infrahub git-agent start --debug
     restart: unless-stopped
     depends_on:
