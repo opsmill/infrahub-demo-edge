@@ -43,6 +43,7 @@ services:
     ports:
       - "7687:7687"
       - "7474:7474"
+      - "6362:6362"
 
   infrahub-server:
     image: "${INFRAHUB_CONTAINER_REGISTRY}/opsmill/${INFRAHUB_IMAGE_NAME}:${INFRAHUB_VERSION}"
