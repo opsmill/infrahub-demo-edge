@@ -148,30 +148,6 @@ generics:
         identifier: connected__endpoint
 
 nodes:
-  - name: RegionMesh
-    namespace: Sony
-    description: "A service representing an iBGP mesh within a Region"
-    label: "Regional Mesh"
-    menu_placement: SonyService
-    inherit_from:
-      - SonyService
-    attributes:
-      - name: "device_roles"
-        kind: List
-        unique: true
-      - name: "interface_roles"
-        kind: List
-    relationships:
-      - name: site
-        peer: BuiltinLocation
-        optional: false
-        kind: Attribute
-        cardinality: one
-      - name: peer_group
-        peer: InfraBGPPeerGroup
-        optional: true
-        kind: Attribute
-        cardinality: one
   - name: Platform
     namespace: Infra
     description: "A Platform represent the type of software running on a device."
@@ -367,29 +343,6 @@ nodes:
         cardinality: many
         kind: Attribute
         identifier: interface_l2__tagged_vlan
-  - name: BGPTransitPeering
-    namespace: Sony
-    label: BGP Transit Peering
-    description: "BGP Transit peering service"
-    menu_placement: SonyService
-    inherit_from:
-      - "SonyService"
-    attributes:
-      - name: name
-        label: Name
-        kind: Text
-        unique: true
-    relationships:
-      - name: asn
-        label: ASN
-        peer: InfraAutonomousSystem
-        cardinality: one
-        kind: Attribute
-      - name: location
-        label: Location
-        cardinality: one
-        peer: SonyMetro
-        kind: Attribute
   - name: IXPBGPPrivatePeering
     namespace: Sony
     label: "IXP BGP private peering"
@@ -872,7 +825,6 @@ nodes:
       - kind: Text
         name: description
         optional: true
-
   - name: Continent
     namespace: Sony
     inherit_from: ["SonyLocation"]
