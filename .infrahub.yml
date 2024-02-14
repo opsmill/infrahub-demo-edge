@@ -7,13 +7,6 @@ check_definitions:
     class_name: "SonyBGPSessionCheck"
 
 artifact_definitions:
-  - name: "Openconfig Interface for Arista devices"
-    artifact_name: "openconfig-interfaces"
-    parameters:
-      device: "name__value"
-    content_type: "application/json"
-    targets: "arista_devices"
-    transformation: "OCInterfaces"
   - name: "Openconfig BGP for Artista devices"
     artifact_name: "openconfig-bgp"
     parameters:
@@ -30,9 +23,6 @@ artifact_definitions:
     transformation: "arista_config"
 
 python_transforms:
-  - name: OCInterfaces
-    class_name: OCInterfaces
-    file_path: "transforms/openconfig.py"
   - name: OCBGPNeighbors
     class_name: OCBGPNeighbors
     file_path: "transforms/openconfig.py"
