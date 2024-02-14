@@ -591,7 +591,7 @@ nodes:
     icon: "mdi:bank-circle-outline"
     menu_placement: InfraBGPSession
     default_filter: name__value
-    order_by: ["asn__value"]
+    order_by: ["name__value"]
     display_labels:
       - name__value
       - asn__value
