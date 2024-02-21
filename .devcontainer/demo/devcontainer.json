@@ -1,8 +1,8 @@
 {
   "name": "infrahub-demo-sony",
   "build": {
-    "dockerfile": "./Dockerfile",
-    "context": "."
+    "dockerfile": "../Dockerfile",
+    "context": ".."
   },
   "customizations": {
     "settings": {
