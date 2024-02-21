@@ -1,5 +1,5 @@
 {
-  "name": "infrahub",
+  "name": "infrahub-demo-sony",
   "build": {
     "dockerfile": "./Dockerfile",
     "context": "."
@@ -42,6 +42,7 @@
   "forwardPorts": [8000],
   "runArgs": ["--volume=/var/lib/docker", "--privileged"],
   "onCreateCommand": "./.devcontainer/onCreateCommand.sh",
+  "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
   "postStartCommand": "./.devcontainer/postStartCommand.sh",
   "postAttachCommand": "./.devcontainer/postAttachCommand.sh",
   "features": {
