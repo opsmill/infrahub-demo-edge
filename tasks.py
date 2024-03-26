@@ -1,14 +1,12 @@
 """Replacement for Makefile."""
-import os
-import sys
-import glob
-from datetime import datetime
 
+import os
 from typing import Tuple
 
-from invoke import task, Context  # type: ignore
+from invoke import Context, task  # type: ignore
 
 PROJECT_NAME = "infrahub-demo-edge"
+
 
 def git_info(context: Context) -> Tuple[str, str]:
     """Return the name of the current branch and hash of the current commit."""
@@ -16,9 +14,10 @@ def git_info(context: Context) -> Tuple[str, str]:
     hash = context.run("git rev-parse --short HEAD", hide=True, pty=False)
     return branch_name.stdout.strip(), hash.stdout.strip()
 
+
 @task
 def generate_archive(context: Context):
-    branch, commit = git_info(context=context)
+    branch, commit = git_info(context=context)  # noqa: F841
     directory_name = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
     package_name = f"{PROJECT_NAME}-{commit[:8]}.tar.gz"
 
@@ -30,6 +29,6 @@ def generate_archive(context: Context):
     ]
 
     for command in commands:
-        result = context.run(command=command, pty=True)
+        result = context.run(command=command, pty=True)  # noqa: F841
 
     print(f"Package {package_name!r} generated successfully.")
