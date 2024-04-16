@@ -43,7 +43,6 @@ query device_startup_info ($device: String!) {
             }
           }
         }
-
       }
     }
   }
