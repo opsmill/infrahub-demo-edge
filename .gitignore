@@ -4,3 +4,7 @@
 **/.DS_Store
 playbooks/documentation
 playbooks/intended
+
+# Direnv files (https://direnv.net/)
+.direnv/
+.envrc
