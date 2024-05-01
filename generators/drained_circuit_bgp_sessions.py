@@ -19,6 +19,6 @@ class Generator(InfrahubGenerator):
             bgp_sessions = circuit["node"]["bgp_sessions"]["edges"]
 
             for bgp_session in bgp_sessions:
-                obj = await self.client.get(kind=bgp_session["__typename"], id=bgp_session["id"])
+                obj = await self.client.get(kind=bgp_session["node"]["__typename"], id=bgp_session["node"]["id"])
                 obj.status.value = "maintenance"
                 await obj.save(allow_upsert=True)
