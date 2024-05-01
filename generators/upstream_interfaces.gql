@@ -1,4 +1,4 @@
-query UpstreamInterface($id: ID!) {
+query upstream_interfaces($id: ID!) {
   InfraInterfaceL3(ids: [$id]) {
     edges {
       node @expand {
@@ -11,6 +11,7 @@ query UpstreamInterface($id: ID!) {
             }
           }
         }
+        status { value}
         connected_endpoint {
           node {
             __typename

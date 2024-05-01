@@ -1,4 +1,4 @@
-query Circuit($circuit_id: String!) {
+query drained_circuit_bgp_sessions($circuit_id: String!) {
   InfraCircuit(circuit_id__value: $circuit_id) {
     edges {
       node @expand {

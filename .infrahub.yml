@@ -40,14 +40,14 @@ python_transforms:
     file_path: "transforms/openconfig.py"
 
 generator_definitions:
-  - name: upstream_interfaces
+  - name: update_upstream_interfaces_description
     file_path: "generators/upstream_interfaces.py"
     targets: upstream_interfaces
     query: upstream_interfaces
     parameters:
       id: "id"
 
-  - name: circuit_endpoints
+  - name: create_circuit_endpoints
     file_path: "generators/circuit_endpoints.py"
     targets: provisioning_circuits
     query: circuit_endpoints

@@ -2,6 +2,7 @@ from infrahub_sdk.generator import InfrahubGenerator
 
 #   In this Generator: We are forcing the InterfaceL3 description
 #   If there is a InfraCircuit Connected on it
+#   If the InterfaceL3 status is provisioning
 
 
 class Generator(InfrahubGenerator):
@@ -13,7 +14,11 @@ class Generator(InfrahubGenerator):
         provider = None
         vendor_id = None
         role: str = upstream_interface["role"]["value"]
-        speed: int = upstream_interface["speed"]["value"]
+        status: str = upstream_interface["status"]["value"]
+        speed: int = upstream_interface["speed"]["value"] / 1000
+
+        if status != "provisioning":
+            pass  # We enforce it only on new interfaces to avoid "noise"
 
         # Check and extract data from the connected endpoint
         if "connected_endpoint" in upstream_interface and "node" in upstream_interface["connected_endpoint"]:
