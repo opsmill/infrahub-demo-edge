@@ -26,6 +26,6 @@ class Generator(InfrahubGenerator):
             new_description = f"{role.upper()}: {provider.title()}-{circuit_id.upper()} ({status.lower()})"
             # Retrieve the object based on type and ID, then update its description
             obj = await self.client.get(kind=upstream_interface["__typename"], id=upstream_interface["id"])
-            obj.description = new_description
+            obj.description.value = new_description
             await obj.save(allow_upsert=True)
 
