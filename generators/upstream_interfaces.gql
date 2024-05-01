@@ -1,0 +1,54 @@
+query UpstreamInterface($name: String!, $device_name: String!) {
+  InfraInterfaceL3(name__value: $name, device__name__value: $device_name) {
+    edges {
+      node @expand {
+        device {
+          node {
+            __typename
+            id
+            name {
+              value
+            }
+          }
+        }
+        status {
+          value
+        }
+        connected_endpoint {
+          node {
+            __typename
+            id
+            ... on InfraCircuitEndpoint {
+              __typename
+              circuit {
+                node {
+                  vendor_id {
+                    value
+                  }
+                  provider {
+                    node {
+                      __typename
+                      id
+                      name {value}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        ip_addresses {
+          edges {
+            node {
+              __typename
+              id
+              address {
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

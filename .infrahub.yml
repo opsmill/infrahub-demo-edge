@@ -38,3 +38,12 @@ python_transforms:
   - name: oc_bgp_neighbors
     class_name: OCBGPNeighbors
     file_path: "transforms/openconfig.py"
+
+generator_definitions:
+  - name: upstream_interfaces
+    file_path: "generators/upstream_interfaces.py"
+    targets: upstream_interfaces
+    query: upstream_interfaces
+    parameters:
+      name: "name__value"
+      device: "device__name__value"
