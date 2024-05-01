@@ -18,7 +18,7 @@ class Generator(InfrahubGenerator):
         speed: int = upstream_interface["speed"]["value"] / 1000
 
         if status != "provisioning":
-            pass  # We enforce it only on new interfaces to avoid "noise"
+            exit  # We enforce it only on new interfaces to avoid "noise"
 
         # Check and extract data from the connected endpoint
         if "connected_endpoint" in upstream_interface and "node" in upstream_interface["connected_endpoint"]:
