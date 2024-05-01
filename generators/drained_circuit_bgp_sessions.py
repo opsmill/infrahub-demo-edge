@@ -14,10 +14,13 @@ class Generator(InfrahubGenerator):
             id = circuit["node"]["id"]
             status: str = circuit["node"]["status"]["value"]
 
+            if status != "maintenance":
+                continue  # No need to change the status of the BGP Sessions
+
             if circuit["node"]["bgp_sessions"]["count"] == 0:
                 continue  # There is no BGP Sessions associated with this circuit
-            bgp_sessions = circuit["node"]["bgp_sessions"]["edges"]
 
+            bgp_sessions = circuit["node"]["bgp_sessions"]["edges"]
             for bgp_session in bgp_sessions:
                 obj = await self.client.get(kind=bgp_session["node"]["__typename"], id=bgp_session["node"]["id"])
                 obj.status.value = "maintenance"
