@@ -9,7 +9,7 @@ class Generator(InfrahubGenerator):
         provider = None
         circuit_id = None
         role: str = upstream_interface["role"]["value"]
-        status: str = upstream_interface["status"]["value"]
+        speed: int = upstream_interface["speed"]["value"]
 
         # Check and extract data from the connected endpoint
         if "connected_endpoint" in upstream_interface and "node" in upstream_interface["connected_endpoint"]:
@@ -23,7 +23,7 @@ class Generator(InfrahubGenerator):
 
         # Update the object description if provider and circuit_id are available
         if provider and circuit_id:
-            new_description = f"{role.upper()}: {provider.title()}-{circuit_id.upper()} ({status.lower()})"
+            new_description = f"{role.upper()}: {provider.title()}-{circuit_id.upper()} ({speed}Gbps)"
             # Retrieve the object based on type and ID, then update its description
             obj = await self.client.get(kind=upstream_interface["__typename"], id=upstream_interface["id"])
             obj.description.value = new_description

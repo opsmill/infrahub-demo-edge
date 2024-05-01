@@ -46,3 +46,10 @@ generator_definitions:
     query: upstream_interfaces
     parameters:
       id: "id"
+
+  - name: circuit_endpoints
+    file_path: "generators/circuit_endpoints.py"
+    targets: InfraCircuit
+    query: circuit_endpoints
+    parameters:
+      id: "id"

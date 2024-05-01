@@ -11,9 +11,6 @@ query UpstreamInterface($id: ID!) {
             }
           }
         }
-        status {
-          value
-        }
         connected_endpoint {
           node {
             __typename
@@ -33,17 +30,6 @@ query UpstreamInterface($id: ID!) {
                     }
                   }
                 }
-              }
-            }
-          }
-        }
-        ip_addresses {
-          edges {
-            node {
-              __typename
-              id
-              address {
-                value
               }
             }
           }
