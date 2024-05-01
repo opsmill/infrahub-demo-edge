@@ -8,7 +8,7 @@ class Generator(InfrahubGenerator):
 
         for circuit in circuits:
             id = circuit["node"]["id"]
-            provider = circuit["node"]["provider"]["node"]
+            provider = circuit["node"]["provider"]["node"]["name"]["value"]
             circuit_id: str = circuit["node"]["circuit_id"]["value"]
             vendor_id: str = circuit["node"]["vendor_id"]["value"]
             # role: str = circuit["node"]["role"]["value"]
@@ -19,7 +19,7 @@ class Generator(InfrahubGenerator):
             for i in range(1, 3):
                 data = {
                     "circuit": {"id": id},
-                    "description": {"value": f"{circuit_id} - ({provider["name"]["value"]}x{vendor_id})"},
+                    "description": {"value": f"{circuit_id} - ({provider}x{vendor_id})"},
                 }
                 if i == 1:
                     data["description"]["value"] += " A Side"
