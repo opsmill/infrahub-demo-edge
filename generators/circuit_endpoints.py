@@ -22,9 +22,9 @@ class Generator(InfrahubGenerator):
                     "description": {"value": f"{circuit_id} - ({provider}x{vendor_id})"},
                 }
                 if i == 1:
-                    data.description += " A Side"
+                    data["description"]["value"] += " A Side"
                 elif i == 2:
-                    data.description += " Z Side"
+                    data["description"]["value"] += " Z Side"
 
                 obj = await self.client.create(kind="InfraCircuitEndpoint", data=data)
                 await obj.save(allow_upsert=True)
