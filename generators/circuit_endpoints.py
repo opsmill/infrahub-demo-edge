@@ -16,10 +16,10 @@ class Generator(InfrahubGenerator):
             if circuit["node"]["endpoints"]["count"] != 0:
                 continue  # There is already endpoint, no need to add more :)
 
-            for i in range(1, 3):  # range(1, 3) will generate numbers 1 and 2
+            for i in range(1, 3):
                 data = {
                     "circuit": {"id": id},
-                    "description": {"value": f"{circuit_id} - ({provider}x{vendor_id})"},
+                    "description": {"value": f"{circuit_id} - ({provider["name"]["value"]}x{vendor_id})"},
                 }
                 if i == 1:
                     data["description"]["value"] += " A Side"
