@@ -1,5 +1,5 @@
-query UpstreamInterface($name: String!, $device_name: String!) {
-  InfraInterfaceL3(name__value: $name, device__name__value: $device_name) {
+query UpstreamInterface($id: ID!) {
+  InfraInterfaceL3(ids: [$id]) {
     edges {
       node @expand {
         device {

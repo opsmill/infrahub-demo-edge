@@ -45,5 +45,4 @@ generator_definitions:
     targets: upstream_interfaces
     query: upstream_interfaces
     parameters:
-      name: "name__value"
-      device: "device__name__value"
+      id: "id"
