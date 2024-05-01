@@ -28,3 +28,4 @@ class Generator(InfrahubGenerator):
             obj = await self.client.get(kind=upstream_interface["__typename"], id=upstream_interface["id"])
             obj.description = new_description
             await obj.save(allow_upsert=True)
+
