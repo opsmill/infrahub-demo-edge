@@ -1,13 +1,17 @@
 from infrahub_sdk.generator import InfrahubGenerator
 
+#   In this Generator: We are forcing the InterfaceL3 description
+#   If there is a InfraCircuit Connected on it
+
 
 class Generator(InfrahubGenerator):
     async def generate(self, data: dict) -> None:
         # Extract the first node in the 'InfraInterfaceL3' edges array
         upstream_interface = data["InfraInterfaceL3"]["edges"][0]["node"]
 
+        # Set local variables to easier manipulation
         provider = None
-        circuit_id = None
+        vendor_id = None
         role: str = upstream_interface["role"]["value"]
         speed: int = upstream_interface["speed"]["value"]
 
@@ -19,13 +23,12 @@ class Generator(InfrahubGenerator):
                 if "provider" in circuit and "node" in circuit["provider"]:
                     provider = circuit["provider"]["node"]["name"]["value"]
                 if "vendor_id" in circuit:
-                    circuit_id = circuit["vendor_id"]["value"]
+                    vendor_id = circuit["vendor_id"]["value"]
 
-        # Update the object description if provider and circuit_id are available
-        if provider and circuit_id:
-            new_description = f"{role.upper()}: {provider.title()}-{circuit_id.upper()} ({speed}Gbps)"
+        # Update the object description if provider and vendor_id are available
+        if provider and vendor_id:
+            new_description = f"{role.upper()}: ({provider.upper()}x{vendor_id.upper()}) [{speed}Gbps]"
             # Retrieve the object based on type and ID, then update its description
             obj = await self.client.get(kind=upstream_interface["__typename"], id=upstream_interface["id"])
             obj.description.value = new_description
             await obj.save(allow_upsert=True)
-
