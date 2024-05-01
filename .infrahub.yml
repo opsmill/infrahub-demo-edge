@@ -49,7 +49,7 @@ generator_definitions:
 
   - name: circuit_endpoints
     file_path: "generators/circuit_endpoints.py"
-    targets: InfraCircuit
+    targets: new_circuits
     query: circuit_endpoints
     parameters:
       id: "id"
