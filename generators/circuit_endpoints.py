@@ -8,7 +8,7 @@ class Generator(InfrahubGenerator):
 
         for circuit in circuits:
             id = circuit["node"]["id"]
-            provider = circuit["node"]["provider"]["ndoe"]
+            provider = circuit["node"]["provider"]["node"]
             circuit_id: str = circuit["node"]["circuit_id"]["value"]
             vendor_id: str = circuit["node"]["vendor_id"]["value"]
             # role: str = circuit["node"]["role"]["value"]
