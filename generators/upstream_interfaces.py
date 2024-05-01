@@ -4,7 +4,7 @@ from infrahub_sdk.generator import InfrahubGenerator
 class Generator(InfrahubGenerator):
     async def generate(self, data: dict) -> None:
         # Extract the first node in the 'InfraInterfaceL3' edges array
-        upstream_interface = data["data"]["InfraInterfaceL3"]["edges"][0]["node"]
+        upstream_interface = data["InfraInterfaceL3"]["edges"][0]["node"]
 
         provider = None
         circuit_id = None
