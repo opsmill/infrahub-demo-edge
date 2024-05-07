@@ -26,6 +26,9 @@ query device_startup_info ($device: String!) {
               enabled {
                 value
               }
+              mtu {
+                value
+              }
               role {
                 value
               }
