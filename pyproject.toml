@@ -6,7 +6,7 @@ authors = ["Damien Garros <dgarros@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9, < 3.12"
-infrahub-sdk = {version = "^0, >=0.9.1", extras = ["all"]}
+infrahub-sdk = {version = "^0, >=0.11.0", extras = ["all"]}
 typer = "^0.9"
 pygnmi = "^0.6.9"
 invoke = "2.2.0"
