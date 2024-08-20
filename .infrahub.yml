@@ -67,3 +67,23 @@ generator_definitions:
     query: backbone_service
     parameters:
       name: "name__value"
+
+queries:
+  - name: topology_info
+    file_path: "topology/topology_info.gql"
+  - name: check_backbone_link_redundancy
+    file_path: "checks/check_backbone_link_redundancy.gql"
+  - name: oc_bgp_neighbors
+    file_path: "transforms/oc_bgp_neighbors.gql"
+  - name: oc_interfaces
+    file_path: "transforms/oc_interfaces.gql"
+  - name: device_startup_info
+    file_path: "templates/device_startup_info.gql"
+  - name: upstream_interfaces
+    file_path: "generators/upstream_interfaces.gql"
+  - name: drained_circuit_bgp_sessions
+    file_path: "generators/drained_circuit_bgp_sessions.gql"
+  - name: circuit_endpoints
+    file_path: "generators/circuit_endpoints.gql"
+  - name: backbone_service
+    file_path: "generators/backbone_service.gql"
