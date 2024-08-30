@@ -10,24 +10,28 @@ class Generator(InfrahubGenerator):
         circuits = data["InfraCircuit"]["edges"]
 
         for circuit in circuits:
+            # There is already endpoints, no need to add more :)
+            if circuit["node"]["endpoints"]["count"] != 0:
+                continue
+
             # Set local variables to easier manipulation
             id = circuit["node"]["id"]
             provider = circuit["node"]["provider"]["node"]["name"]["value"]
             circuit_id: str = circuit["node"]["circuit_id"]["value"]
             vendor_id: str = circuit["node"]["vendor_id"]["value"]
 
-            if circuit["node"]["endpoints"]["count"] != 0:
-                continue  # There is already endpoints, no need to add more :)
+            # Manage description
+            description: str = f"{circuit_id} - ({provider.upper()}{' x '+vendor_id.upper() if vendor_id else ''})"
 
             for i in range(1, 3):
                 data = {
                     "circuit": {"id": id},
-                    "description": {"value": f"{circuit_id} - ({provider.upper()}x{vendor_id.upper()})"},
+                    "description": {"value": description},
                 }
                 if i == 1:
-                    data["description"]["value"] += " - A Side"
+                    description += " - A Side"
                 elif i == 2:
-                    data["description"]["value"] += " - Z Side"
+                    description += " - Z Side"
 
                 obj = await self.client.create(kind="InfraCircuitEndpoint", data=data)
                 await obj.save(allow_upsert=True)
