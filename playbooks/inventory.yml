@@ -12,19 +12,22 @@ nodes:
   InfraDevice:
     include:
       - name
-      - platform
-      - primary_address
-      - site
+      - platform.ansible_network_os
+      - primary_address.address
+      - site.name
       - role
+      - asn.asn
 
 compose:
   hostname: name
   platform: platform.ansible_network_os
   ansible_host: primary_address.address | ansible.utils.ipaddr('address')
+  site: site.name
+  asn: asn.asn
 
 keyed_groups:
   - prefix: site
-    key: site.name
+    key: site
   - prefix: role
     key: role.name
   - prefix: platform
