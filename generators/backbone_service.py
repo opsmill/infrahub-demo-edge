@@ -98,8 +98,14 @@ class Generator(InfrahubGenerator):
         )
         await circuit_address_pool.save(allow_upsert=True)
 
-        interface_a.ip_addresses.add(circuit_address_pool)
+        interface_a_ip = await self.client.allocate_next_ip_address(
+            resource_pool=circuit_address_pool,
+        )
+        interface_a.ip_addresses.add(interface_a_ip)
         await interface_a.save(allow_upsert=True)
 
-        interface_b.ip_addresses.add(circuit_address_pool)
+        interface_b_ip = await self.client.allocate_next_ip_address(
+            resource_pool=circuit_address_pool,
+        )
+        interface_b.ip_addresses.add(interface_b_ip)
         await interface_b.save(allow_upsert=True)
