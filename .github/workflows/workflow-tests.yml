@@ -9,7 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        infrahub-version: [1.0, stable, latest]
+        # Latest 1.0.x release, stable release, and latest release
+        infrahub-version: ["1.0", stable, latest]
     steps:
       - name: "Check out repository code"
         uses: "actions/checkout@v4"
