@@ -37,7 +37,7 @@ interface {{ intf.node.name.value }}
 {%   else %}
    description role: {{ intf.node.role.value }}
 {%   endif %}
-{%   if intf.node["mtu"]["value"] %}
+{%   if "mtu" in intf.node and intf.node["mtu"]["value"] %}
    mtu {{ intf.node["mtu"]["value"] }}
 {%   endif %}
 {%   if not intf.node["enabled"]["value"] %}

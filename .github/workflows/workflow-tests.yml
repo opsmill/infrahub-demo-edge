@@ -1,0 +1,35 @@
+---
+name: "Run Unit Tests"
+on:
+    pull_request:
+        branches:
+            - main
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        infrahub-version: [1.0, stable, latest]
+    steps:
+      - name: "Check out repository code"
+        uses: "actions/checkout@v4"
+      - name: "Set up Python"
+        uses: "actions/setup-python@v5"
+        with:
+          python-version: "3.12"
+      - name: "Setup environment"
+        run: |
+          pipx install poetry
+      - name: "Install dependencies"
+        run: |
+          poetry install
+      - name: "Launch Infrahub"
+        run: |
+          curl https://infrahub.opsmill.io/${ matrix.infrahub-version } | sudo docker compose -f up -d
+      - name: "Wait for Infrahub to become accessible"
+        uses: iFaxity/wait-on-action
+        with:
+          resource: http://localhost:8000
+      - name: "Run Pytest"
+        run: |
+          pytest
