@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from infrahub_sdk.checks import InfrahubCheck
+from .utils import something
 
 
 class InfrahubCheckBackboneLinkRedundancy(InfrahubCheck):
