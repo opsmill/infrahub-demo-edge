@@ -38,6 +38,9 @@ python_transforms:
   - name: oc_bgp_neighbors
     class_name: OCBGPNeighbors
     file_path: "transforms/openconfig.py"
+  - name: computed_circuit_description
+    class_name: ComputedCircuitDescription
+    file_path: "transforms/computed_circuit_description.py"
 
 generator_definitions:
   - name: update_upstream_interfaces_description
@@ -87,3 +90,5 @@ queries:
     file_path: "generators/circuit_endpoints.gql"
   - name: backbone_service
     file_path: "generators/backbone_service.gql"
+  - name: computed_circuit_description
+    file_path: "transforms/computed_circuit_description.gql"
