@@ -5,7 +5,7 @@ description = ""
 authors = ["Damien Garros <dgarros@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9, < 3.12"
+python = "^3.9, < 3.13"
 infrahub-sdk = {version = "^1", extras = ["all"]}
 invoke = "2.2.0"
 
