@@ -13,6 +13,8 @@ async def find_interface(client, site_id):
         device__ids=[device.id],
         role__value="backbone",
         include=["connected_endpoint", "ip_addresses", "device"],
+        prefetch_relationships=True,
+        populate_store=True
     )
 
     if len(interfaces) == 0:
@@ -57,7 +59,7 @@ class Generator(InfrahubGenerator):
                 not interface_a.connected_endpoint.typename == "InfraCircuitEndpoint"
                 or not interface_a.connected_endpoint.peer.circuit.id == circuit.id
             ):
-                raise ValueError(f"{interface_a.name.value} on {interface_a.device.peer.name} is already connected!")
+                raise ValueError(f"{interface_a.name.value} on {interface_a.device.peer.name.value} is already connected!")
 
         if not interface_b.connected_endpoint.initialized:
             connected_endpoint_b = await self.client.create(
@@ -71,7 +73,7 @@ class Generator(InfrahubGenerator):
                 not interface_b.connected_endpoint.typename == "InfraCircuitEndpoint"
                 or not interface_b.connected_endpoint.peer.circuit.id == circuit.id
             ):
-                raise ValueError(f"{interface_b.name.value} on {interface_b.device.peer.name} is already connected!")
+                raise ValueError(f"{interface_b.name.value} on {interface_b.device.peer.name.value} is already connected!")
 
         # allocate an IP prefix for the service
 
