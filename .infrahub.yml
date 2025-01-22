@@ -23,7 +23,7 @@ artifact_definitions:
     parameters:
       device: "name__value"
     content_type: "text/plain"
-    targets: "core_router"
+    targets: "edge_router"
     transformation: "device_startup"
 
 check_definitions:
