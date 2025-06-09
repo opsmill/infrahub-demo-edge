@@ -4,6 +4,14 @@ jinja2_transforms:
     description: "Template to generate startup configuration for network devices"
     query: "device_startup_info"
     template_path: "templates/device_startup_config.tpl.j2"
+  - name: "device_startup_bgp"
+    description: "Template to generate startup BGP configuration for network devices"
+    query: "device_startup_bgp"
+    template_path: "templates/device_startup_bgp.j2"
+  - name: "device_startup_interfaces"
+    description: "Template to generate startup interface configuration for network devices"
+    query: "device_startup_interfaces"
+    template_path: "templates/device_startup_interfaces.j2"
 
   - name: "clab_topology"
     query: "topology_info"
@@ -82,6 +90,10 @@ queries:
     file_path: "transforms/oc_interfaces.gql"
   - name: device_startup_info
     file_path: "templates/device_startup_info.gql"
+  - name: device_startup_bgp
+    file_path: "templates/device_startup_bgp.gql"
+  - name: device_startup_interfaces
+    file_path: "templates/device_startup_interfaces.gql"
   - name: upstream_interfaces
     file_path: "generators/upstream_interfaces.gql"
   - name: drained_circuit_bgp_sessions

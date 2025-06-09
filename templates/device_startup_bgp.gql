@@ -1,0 +1,38 @@
+query device_startup_info ($device: String!, $bgp_group: String) {
+  InfraDevice(name__value: $device) {
+    edges {
+      node {
+        asn {
+          node {
+            asn {
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+  InfraBGPPeerGroup(name__value: $bgp_group) {
+    edges {
+      node {
+        name {
+          value
+        }
+        local_as {
+          node {
+            asn {
+              value
+            }
+          }
+        }
+        remote_as {
+          node {
+            asn {
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+}
