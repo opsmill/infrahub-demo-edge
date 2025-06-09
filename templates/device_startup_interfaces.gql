@@ -1,0 +1,35 @@
+query device_startup_interface ($device: String, $interface: String) {
+  InfraInterface(device__name__value: $device, name__value: $interface) {
+    edges {
+        node {
+            id
+            name {
+                value
+            }
+            description {
+                value
+            }
+            enabled {
+                value
+            }
+            mtu {
+                value
+            }
+            role {
+                value
+            }
+            ... on InfraInterfaceL3 {
+                ip_addresses {
+                    edges {
+                        node {
+                            address {
+                                value
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+  }
+}
