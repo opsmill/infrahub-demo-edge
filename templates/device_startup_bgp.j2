@@ -1,0 +1,14 @@
+{% if data.InfraDevice.edges[0].node.asn %}
+router bgp {{ data.InfraDevice.edges[0].node.asn.node.asn.value }}
+   router-id {{ loopback_ip }}
+{%   for peer_group in data.InfraBGPPeerGroup.edges %}
+   neighbor {{ peer_group.node.name.value }} peer group
+{%     if peer_group.node.local_as %}
+   neighbor {{ peer_group.node.name.value }} local-as {{ peer_group.node.local_as.node.asn.value }}
+{%     endif %}
+{%     if peer_group.node.remote_as and peer_group.node.remote_as.node %}
+   neighbor {{ peer_group.node.name.value }} remote-as {{ peer_group.node.remote_as.node.asn.value }}
+{%     endif %}
+{%   endfor %}
+!
+{% endif %}
